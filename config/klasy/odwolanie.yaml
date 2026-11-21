@@ -1,0 +1,205 @@
+# Klasa: odwołanie do Prezesa Krajowej Izby Odwoławczej.
+# Format wyniku: oczekiwane-json/odwolanie.json z repo UZP.
+nazwa: odwolanie
+opis: Odwołanie wykonawcy do Prezesa KIO
+
+rozpoznanie:
+  prog: 5
+  slowa:
+    '^\s*O\s?D\s?W\s?O\s?[ŁL]\s?A\s?N\s?I\s?E\s*$': 4
+    'odwo[łl]uj[aą]c\w*\s*:': 3
+    'krajow\w+\s+izb\w+\s+odwo[łl]awcz': 2
+    'zamawiaj[aą]c\w*\s*[:(]': 1
+    'zarzut|zarzuca': 1
+    'wnosz[eę]\s+(?:o|odwo[łl]anie)': 1
+
+# Usuwane przed ekstrakcją (stopki stron przerywają zdania).
+oczysc:
+  - '(?m)^[ \t]*Strona\s+\d+\s+z\s+\d+[ \t]*\n?'
+
+sekcje:
+  pierwsza_strona:
+    od: '\A'
+    max_znakow: 3500
+    globalna: true
+  zdanie_w_imieniu:   # "Działając w imieniu wykonawcy X (dalej: „Odwołujący”)" — ten sam w każdym układzie
+    od: 'w\s+imieniu\s+(?:wykonawc\w+\s*:?\s*|konsorcjum\s*:?\s*)?'
+    do: ['\s\(dalej', '\s+oraz\s', ',\s+(?:wnosz|na\s+podstawie|w\s+oparciu)']
+    max_znakow: 200
+    globalna: true
+  naglowek_odwolujacego:  # część przed treścią odwołania (reprezentacja bywa nad etykietą "Odwołujący:")
+    od: '\A'
+    do: ['(?m)^[ \t]*O\s?D\s?W\s?O\s?[ŁL]\s?A\s?N\s?I\s?E[ \t]*$']
+    max_znakow: 4000
+    globalna: true
+  odwolujacy:
+    od: '(?m)^[ \t]*Odwo[łl]uj[aą]c\w*[ \t]*:'
+    do:
+      - '(?m)^[ \t]*Zamawiaj[aą]c\w*\b[^\n]*[:(]'
+      - '(?m)^[ \t]*(?:Wykonawc\w+\s+wybran|Uczestni\w+|Przyst[eę]puj[aą]c)'
+      - '(?m)^[ \t]*dotyczy'
+      - '(?m)^[ \t]*(?:Prezes|Krajowa\s+Izba)'
+      - '(?m)^[ \t]*O\s?D\s?W\s?O\s?[ŁL]\s?A\s?N\s?I\s?E[ \t]*$'
+  zamawiajacy:
+    od: '(?m)^[ \t]*Zamawiaj[aą]c\w*\b[^\n]*[:(]'
+    do:
+      - '(?m)^[ \t]*Odwo[łl]uj[aą]c\w*[ \t]*:'
+      - '(?m)^[ \t]*dotyczy'
+      - '(?m)^[ \t]*(?:Prezes|Krajowa\s+Izba)'
+      - '(?m)^[ \t]*O\s?D\s?W\s?O\s?[ŁL]\s?A\s?N\s?I\s?E[ \t]*$'
+      - '(?m)^[ \t]*Warto[śs][ćc]\s+zam'
+  dotyczy:
+    od: '(?m)^[ \t]*dotyczy'
+    max_znakow: 900
+  pelnomocnik:
+    od: 'reprezentowan\w*\s+przez\s*:?'
+  pelnomocnik_naglowek:
+    od: 'reprezentowan\w*\s+przez\s*:?'
+    w: naglowek_odwolujacego
+  pierwsza_czynnosc:     # "polegających na: 1) ..." (pierwszy zarzut)
+    od: 'polegaj[aą]c\w*\s+na\s*:?\s*(?:1\)\s*)?'
+    do: ['\n\s*2\)', ';']
+    max_znakow: 400
+  zdanie_czynnosci:      # "Zamawiający w dniu ... <czynność>." / "Zamawiający zamieścił ... w dniu ..."
+    od: 'Zamawiaj[aą]cy\s+(?:w\s+dniu|zamie[śs]ci[łl]|opublikowa[łl]|przekaza[łl]|udost[eę]pni[łl]|unieważni[łl]|odrzuci[łl]|wykluczy[łl]|dokona[łl])'
+    z_naglowkiem: true
+    do: ['\.\s', 'Zarzut']
+    max_znakow: 300
+
+slowniki:
+  powody:   # id + opis kanoniczny (UZP); wzorce: najwcześniejsze trafienie w tekście czynności wygrywa
+    - {id: 1, opis: 'Decyzja o odrzuceniu oferty', wzorce: ['odrzuc\w*\s+ofert']}
+    - {id: 2, opis: 'Ogłoszenie wyboru oferty', wzorce: ['wyb[oó]r\w*\s+(?:jako\s+)?(?:oferty|najkorzystniejsz)', 'og[łl]osi\w*\s+wyb[oó]r', 'dokona\w*\s+wyboru']}
+    - {id: 3, opis: 'Decyzja o wykluczeniu wykonawcy', wzorce: ['wyklucz\w*']}
+    - {id: 4, opis: 'Publikacja specyfikacji warunków zamówienia (SWZ)', wzorce: ['zamie[śs]ci\w*\s+og[łl]oszeni', 'opublikowa\w*\s+(?:specyfikacj|SWZ|og[łl]oszeni)', 'ustaleni\w*\s+tre[śs]ci\s+(?:SWZ|specyfikacji)', 'publikacj\w*\s+(?:SWZ|specyfikacji)']}
+    - {id: 5, opis: 'Modyfikacja treści SWZ', wzorce: ['zmodyfikowa\w*', 'modyfikacj\w*']}
+    - {id: 6, opis: 'Odpowiedzi i wyjaśnienia do SWZ', wzorce: ['odpowiedzi\s+i\s+wyja[śs]nienia', 'udziel\w*\s+(?:[^;]{0,40}?)odpowiedzi', 'odpowiedzi\s+na\s+pytania']}
+    - {id: 7, opis: 'Zaniechanie odrzucenia oferty', wzorce: ['zaniecha\w*\s+odrzuceni', 'nie\s+odrzuci']}
+    - {id: 8, opis: 'Zaniechanie wykluczenia wykonawcy', wzorce: ['zaniecha\w*\s+wykluczeni', 'nie\s+wykluczy']}
+    - {id: 9, opis: 'Decyzja o unieważnieniu postępowania', wzorce: ['uniewa[żz]ni\w*\s+post[eę]powani']}
+    - {id: 10, opis: 'Zaniechanie unieważnienia postępowania', wzorce: ['zaniecha\w*\s+uniewa[żz]nieni']}
+    - {id: 11, opis: 'Opis przedmiotu zamówienia (OPZ)', wzorce: ['opis\w*\s+przedmiotu\s+zam[oó]wienia', '\bOPZ\b']}
+
+wynik:
+  OdwolanieKIO:
+    data:
+      metody:
+        - regex: '(?m)^[ \t]*[A-ZŁŚŻŹĆ][\wąćęłńóśźż]+(?:[ -][\wąćęłńóśźż]+){0,2},[ \t]*(?:dnia[ \t]+)?(?P<v>\d{1,2}(?:[.\-/]\d{1,2}[.\-/]\d{4}|[ \t]+\w+[ \t]+\d{4}))'
+          flagi: [m]
+          w: pierwsza_strona
+      normalizuj: [data_iso]
+    czynnosc_dzien:
+      metody:
+        - calosc: true
+          w: [pierwsza_czynnosc, zdanie_czynnosci]
+      normalizuj: [data_iso]
+    czynnosc_powod_id:
+      metody:
+        - slownik: powody
+          w: [pierwsza_czynnosc, zdanie_czynnosci]
+          zwroc: id
+      typ: int
+    czynnosc_opis:
+      metody:
+        - slownik: powody
+          w: [pierwsza_czynnosc, zdanie_czynnosci]
+          zwroc: opis
+    miejscowosc:
+      metody:
+        - regex: '(?m)^[ \t]*(?P<v>[A-ZŁŚŻŹĆ][\wąćęłńóśźż]+(?:[ -][\wąćęłńóśźż]+){0,2}),[ \t]*(?:dnia[ \t]+)?\d{1,2}(?:[.\-/]\d{1,2}[.\-/]\d{4}|[ \t]+\w+[ \t]+\d{4})'
+          flagi: [m]
+          w: pierwsza_strona
+  Odwolujacy:
+    lista:
+      w: odwolujacy
+    element:
+      krs:
+        metody: [{regex: 'KRS[:\s]*(?P<v>\d{10})'}]
+      nazwa:
+        metody:
+          - calosc: true
+            w: zdanie_w_imieniu
+          - regex: '(?m)^[ \t]*(?P<v>\S[^\n]+)\n[ \t]*(?:ul\.|al\.|pl\.|os\.)\s'
+          - regex: '\A\s*(?P<v>[^\n]+)'
+        normalizuj: [jedna_linia]
+      nip:
+        metody: [{regex: 'NIP[:\s]*(?P<v>\d{3}-?\d{3}-?\d{2}-?\d{2}|\d{10})'}]
+        normalizuj: [cyfry]
+      regon:
+        metody: [{regex: 'REGON[:\s]*(?P<v>\d{9}(?:\d{5})?)'}]
+      przez-pelnomocnika:
+        metody:
+          - jesli: 'reprezentowan\w*\s+przez|pe[łl]nomocnik'
+            to: 1
+          - jesli: 'reprezentowan\w*\s+przez|pe[łl]nomocnik|radc\w+\s+prawn|adwokat'
+            w: naglowek_odwolujacego
+            to: 1
+            inaczej: 0
+        typ: int
+      pelnomocnik:
+        imie_nazwisko:
+          metody:
+            - regex: '\A\s*(?P<v>[^,\n]+)'
+              w: [pelnomocnik, pelnomocnik_naglowek]
+          normalizuj: [bez_tytulu_zawodowego]
+        nazwa:
+          metody:
+            - regex: 'adres\s+do\s+korespondencji\s*:?\s*(?P<v>.+?),\s*(?:ul\.|al\.|pl\.|os\.)'
+              flagi: [i, s]
+          normalizuj: [jedna_linia]
+        mail:
+          metody:
+            - regex: 'adres\s+do\s+korespondencji(?P<v>.*)'
+              flagi: [i, s]
+            - calosc: true
+          normalizuj: [email]
+  Zamawiajacy:
+    lista:
+      w: zamawiajacy
+      rozdziel: '(?m)^[ \t]*\d\)\s*'
+      wymagaj: 'KRS|NIP|REGON'
+      tylko_gdy_wiele: [prowadzacy_postepowanie]
+    element:
+      krs:
+        metody: [{regex: 'KRS[:\s]*(?P<v>\d{10})'}]
+      nazwa:
+        metody:
+          - regex: '(?m)^[ \t]*(?P<v>\S[^\n]+)\n[ \t]*(?:ul\.|al\.|pl\.|os\.)\s'
+          - regex: '\A\s*(?P<v>[^\n]+)'
+        normalizuj: [jedna_linia]
+      nip:
+        metody: [{regex: 'NIP[:\s]*(?P<v>\d{3}-?\d{3}-?\d{2}-?\d{2}|\d{10})'}]
+        normalizuj: [cyfry]
+      regon:
+        metody: [{regex: 'REGON[:\s]*(?P<v>\d{9}(?:\d{5})?)'}]
+      prowadzacy_postepowanie:
+        metody:
+          - jesli: 'lider|prowadz[aą]c\w*\s+post[eę]powanie'
+            to: 1
+            inaczej: 0
+        typ: int
+  ZamowieniePubliczne:
+    numer_bzp:
+      metody:
+        - regex: '(?P<v>\d{4}\s*/\s*BZP\s*\d{8}(?:\s*/\s*\d{2})?)'
+          w: [dotyczy, pierwsza_strona]
+      normalizuj: [bzp]
+    numer_postepowania:
+      metody:
+        - regex: '(?:nr|numer)\s+referencyjn\w*(?:\s+sprawy)?\s*:?\s*(?P<v>[^\s,;]+)'
+        - regex: '(?:znak\s+sprawy|numer\s+post[eę]powania|nr\s+post[eę]powania|post[eę]powanie\s+nr|nr\s+sprawy)\s*:?\s*(?P<v>[^\s,;)]+)'
+      normalizuj: [bez_kropki]
+    numer_ted:
+      metody:
+        - w: [dotyczy, pierwsza_strona]
+          regex: '(?:TED|Dzienniku\s+Urz[eę]dowym|Dz\.\s*Urz\.)[\s\S]{0,80}?(?P<v>\d{4}\s*/\s*S\s*\d{1,3}\s*-\s*\d{5,7}|\d{5,7}-\d{4})'
+          flagi: [i, s]
+      normalizuj: [ted]
+    tytul:
+      metody:
+        - regex: 'pn\.?\s*[„"](?P<v>[^”"]+)[”"]'
+          flagi: [i, s]
+        - regex: '[„"](?P<v>[^”"]{15,})[”"]'
+          flagi: [s]
+          w: dotyczy
+      normalizuj: [jedna_linia]

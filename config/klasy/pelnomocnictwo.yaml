@@ -1,0 +1,102 @@
+# Klasa: pełnomocnictwo (procesowe) udzielone przez wykonawcę lub konsorcjum.
+# Format wyniku: oczekiwane-json/pelnomocnictwo.json z repo UZP.
+nazwa: pelnomocnictwo
+opis: Pełnomocnictwo do reprezentowania wykonawcy przed KIO
+
+rozpoznanie:
+  prog: 4
+  slowa:
+    'p\s?e\s?[łl]\s?n\s?o\s?m\s?o\s?c\s?n\s?i\s?c\s?t\s?w\s?o': 3
+    'mocodaw': 2
+    'udziel\w*\s+pe[łl]nomocnictwa|ustanawiam\s+pe[łl]nomocnik': 2
+    'pe[łl]nomocnictwo\s+przyjmuj': 1
+    'umocowan': 1
+    'upowa[żz]niam': 2
+
+# Fragmenty tekstu, w których szukają pola.
+sekcje:
+  mocodawcy:        # od początku do zdania o udzieleniu pełnomocnictwa
+    od: '\A'
+    do:
+      - 'udziel\w*\s+pe[łl]nomocnictwa'
+      - 'ustanawiam'
+      - 'upowa[żz]niam'
+      - '§\s*2'
+      - '(?m)^\s*pe[łl]nomocni(?:k|cy)\b'
+  podpisy_mocodawcy:   # blok podpisów: "Mocodawca:" albo "W imieniu X:" (konsorcjum: kilka bloków)
+    od: '(?m)^[ \t]*(?:w\s+imieniu[^\n]*:|mocodawca:?|za\s+mocodawc\w+:?)[ \t]*$'
+    flagi: [i, m]
+    wiele: true
+    do: ['(?m)^[ \t]*w\s+imieniu[^\n]*:[ \t]*$', 'przyjmuj']
+  podpisy_bez_etykiety:  # pierwszy blok kropek do "przyjmuję"
+    od: '\.{5,}'
+    z_naglowkiem: true
+    do: ['przyjmuj']
+
+wynik:
+  mocodawca:
+    lista:
+      w: mocodawcy
+      rozdziel: '(?:^|\s)\d\)\s'     # konsorcjum: "1) Firma A ...; 2) Firma B ..."
+      wymagaj: 'KRS|NIP|REGON|PESEL'
+    element:
+      data:
+        imie_nazwisko:
+          metody:
+            - regex: 'ni[żz]ej\s+podpisan[ya]\s+(?P<v>[^,]+?),\s+prowadz[aą]c'
+              flagi: [i, s]
+          normalizuj: [jedna_linia]
+        krs:
+          metody:
+            - regex: 'KRS[:\s]*(?:pod\s+numerem\s+)?(?P<v>\d{10})'
+        nazwa:
+          metody:
+            - regex: 'mocodawc[ąa]\s+jest\s+(?P<v>.+?),\s*(?:ul\.|al\.|pl\.|os\.)'
+              flagi: [i, s]
+            - regex: 'pod\s+firm[ąa]\s+(?P<v>.+?),\s*(?:ul\.|al\.|pl\.|os\.)'
+              flagi: [i, s]
+            - regex: 'w\s+imieniu\s+(?P<v>.+?)\s*\(dalej'
+              flagi: [i, s]
+            - regex: 'reprezentacji\s+(?P<v>.+?)\s*\((?:KRS|NIP)'
+              flagi: [i, s]
+            - regex: '(?m)^\s*mocodawca[ \t]+(?P<v>\S[^\n]+)'
+            - regex: '(?m)^\s*mocodawca[ \t]*\n\s*(?P<v>\S[^\n]+)'
+            - regex: '(?m)^\s*(?P<v>\S[^\n]+?)\s+z\s+siedzib'
+            - regex: '\A\s*(?P<v>[^,:;\n][^,:;]{2,120}?),\s*(?:ul\.|al\.|pl\.|os\.)'
+              flagi: [s]
+            - regex: '(?m)^\s*(?P<v>[^\n,:;]+?),\s*(?:ul\.|al\.|pl\.|os\.)'
+            - regex: '(?m)^\s*(?P<v>\S[^\n]+)\n\s*(?:ul\.|al\.|pl\.|os\.)\s'
+          normalizuj: [jedna_linia, bez_cudzyslowow]
+        nip:
+          metody:
+            - regex: 'NIP[:\s]*(?P<v>\d{3}-?\d{3}-?\d{2}-?\d{2}|\d{10})'
+          normalizuj: [cyfry]
+        typ:
+          metody:
+            - jesli: 'prowadz\w*\s+dzia[łl]alno|CEIDG|Centraln\w+\s+Ewidencj'
+              to: osoba_fizyczna
+              inaczej: osoba_prawna
+      podpisujacy:
+        lista:
+          w: [podpisy_mocodawcy, podpisy_bez_etykiety]
+          indeks: true
+          regex: '\.{5,}[ \t]*\n(?:[ \t]*\.+[ \t]*\n)?(?:[ \t]*(?:za|w\s+imieniu)\s[^\n]*\n)?\s*(?P<v>[^\n]+)'
+          klucz: imie_nazwisko
+        element:
+          imie_nazwisko:
+            metody:
+              - calosc: true
+            normalizuj: [bez_tytulu_zawodowego]
+  pelnomocnicy:
+    lista:
+      regex: '(?:adw\.|adwokat|r\.\s?pr\.|radc[ay]\s+prawn\w*|apl\.\s?(?:adw|radc)\.?)\s+(?P<v>[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+(?:-[A-ZŁŚŻŹĆ]\w+)?\s+[A-ZŁŚŻŹĆ][\wąćęłńóśźż-]+(?:,\s*PESEL[:\s]*\d{11})?)'
+      flagi: [s]
+      klucz: imie_nazwisko
+    element:
+      imie_nazwisko:
+        metody:
+          - regex: '^(?P<v>\S+\s+[^\s,]+)'
+        normalizuj: [jedna_linia]
+      pesel:
+        metody:
+          - regex: 'PESEL[:\s]*(?P<v>\d{11})'

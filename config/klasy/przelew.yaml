@@ -1,0 +1,71 @@
+# Klasa: potwierdzenie przelewu (wpis od odwołania albo opłata skarbowa od pełnomocnictwa).
+# Format wyniku: oczekiwane-json/przelew.json z repo UZP.
+nazwa: przelew
+opis: Potwierdzenie wykonania przelewu bankowego
+
+rozpoznanie:
+  prog: 4
+  slowa:
+    'potwierdzenie\s+(?:realizacji|wykonania|przelewu|transakcji|operacji)': 3
+    'dow[oó]d\s+wykonania\s+przelewu': 3
+    'rachunek\s+(?:odbiorcy|zleceniodawcy|nadawcy|beneficjenta|obci[aą][żz]any|uznawany)': 2
+    'z\s+rachunku': 1
+    'na\s+rachunek': 1
+    'tytu[łl](?:\s+przelewu|em)?': 1
+    'numer\s+referencyjny|nr\s+ref': 1
+    'kwota|warto[śs][ćc]': 1
+    'zrealizowan': 1
+    '\bbank\b': 1
+
+sekcje:
+  tytul:
+    od: '^[ \t]*(?:tytu[łl](?:\s+przelewu)?|tytu[łl]em|opis)[ \t]*(?::|\.{2,})?[ \t]*'
+    flagi: [i, m]
+    do:
+      - '^[ \t]*(?:numer|nr|identyfikator|status|kana[łl]|data|kwota|typ|waluta|op[łl]ata(?:/prowizja|[ \t]*:|[ \t]*\.{2,}|[ \t]*$)|rachunek|z\s+rachunku|na\s+rachunek|godz)\b'
+      - '”'
+    max_znakow: 400
+  list_banku:   # potwierdzenie w formie pisma: "Bank potwierdza, że w dniu ... z rachunku nr ..."
+    od: 'bank\s+potwierdza'
+    max_znakow: 1500
+
+wynik:
+  przelew_bankowy:
+    data_operacji:
+      metody:
+        - etykieta: ['data\s+(?:operacji|transakcji|realizacji|wykonania|księgowania)']
+        - regex: 'w\s+dniu\s+(?P<v>[^,]{6,25}?)\s+z\s+rachunku'
+          w: list_banku
+      normalizuj: [data_iso]
+    kwota:
+      metody:
+        - etykieta: ['kwota(?:\s+(?:operacji|przelewu))?', 'warto[śs][ćc]']
+        - regex: 'w\s+kwocie\s+(?P<v>[\d\s.,]+)'
+      normalizuj: [kwota]
+      typ: float
+    na_rachunek:
+      metody:
+        - etykieta: ['rachunek\s+(?:odbiorcy|beneficjenta|uznawany)', 'na\s+rachunek']
+          linie: 1
+        - regex: 'na\s+rachunek\s+nr\s+(?P<v>(?:PL)?[\d \n]{26,45})'
+        - regex: '(?P<v>(?:PL)?\d{2}(?: ?\d{4}){6})'
+          ktory: 2
+      normalizuj: [rachunek]
+    numer_transakcji:
+      metody:
+        - etykieta: ['numer\s+(?:referencyjny|transakcji)(?:\s+operacji)?', 'nr\s+ref\.?(?:\s+operacji)?', 'identyfikator\s+operacji']
+        - regex: '\b(?P<v>CEN\d{10,})'
+      normalizuj: [bez_kropki]
+    tytul:
+      metody:
+        - calosc: true
+          w: tytul
+      normalizuj: [jedna_linia, bez_cudzyslowow, bez_kropki, bez_cudzyslowow]
+    z_rachunku:
+      metody:
+        - etykieta: ['rachunek\s+(?:zleceniodawcy|nadawcy|obci[aą][żz]any|p[łl]atnika)', 'z\s+rachunku']
+          linie: 1
+        - regex: 'z\s+rachunku\s+nr\s+(?P<v>(?:PL)?[\d \n]{26,45})'
+        - regex: '(?P<v>(?:PL)?\d{2}(?: ?\d{4}){6})'
+          ktory: 1
+      normalizuj: [rachunek]

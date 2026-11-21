@@ -1,0 +1,49 @@
+# DEMO rozszerzalności: czwarta klasa dodana bez zmiany kodu.
+# Zgłoszenie przystąpienia do postępowania odwoławczego (art. 525 Pzp).
+# Żeby włączyć: skopiuj ten plik do config/klasy/ (albo ustaw --klasy na katalog z nim).
+nazwa: przystapienie
+opis: Zgłoszenie przystąpienia do postępowania odwoławczego
+
+rozpoznanie:
+  prog: 5
+  slowa:
+    'zg[łl]oszeni\w*\s+przyst[aą]pieni': 4
+    'przyst[eę]puj[aą]c\w*': 2
+    'po\s+stronie\s+(?:zamawiaj[aą]cego|odwo[łl]uj[aą]cego)': 2
+    'sygn\.?\s*akt': 1
+
+sekcje:
+  przystepujacy:
+    od: '(?m)^[ \t]*Przyst[eę]puj[aą]c\w*[ \t]*:'
+    do: ['(?m)^[ \t]*(?:Zamawiaj|Odwo[łl]uj|dotyczy|ZG[ŁL]OSZENIE)']
+
+wynik:
+  PrzystapienieKIO:
+    sygnatura:
+      metody:
+        - regex: 'sygn\.?\s*akt\s*:?\s*(?P<v>KIO\s*\d+/\d{2})'
+      normalizuj: [jedna_linia]
+    strona:
+      metody:
+        - jesli: 'po\s+stronie\s+zamawiaj'
+          to: zamawiajacy
+        - jesli: 'po\s+stronie\s+odwo[łl]uj'
+          to: odwolujacy
+    data:
+      metody:
+        - regex: '(?m)^[ \t]*[A-ZŁŚŻŹĆ]\w+,\s*(?:dnia\s+)?(?P<v>\d{1,2}[ .]\S+[ .]\d{4})'
+          flagi: [m]
+      normalizuj: [data_iso]
+  Przystepujacy:
+    lista:
+      w: przystepujacy
+    element:
+      nazwa:
+        metody:
+          - regex: '\A\s*(?P<v>[^\n]+)'
+        normalizuj: [jedna_linia]
+      krs:
+        metody: [{regex: 'KRS[:\s]*(?P<v>\d{10})'}]
+      nip:
+        metody: [{regex: 'NIP[:\s]*(?P<v>[\d-]{10,13})'}]
+        normalizuj: [cyfry]
