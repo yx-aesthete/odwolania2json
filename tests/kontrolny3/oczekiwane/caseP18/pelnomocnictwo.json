@@ -1,0 +1,24 @@
+{
+  "mocodawca": [
+    {
+      "data": {
+        "imie_nazwisko": "Teresa Bąk",
+        "krs": null,
+        "nazwa": "BĄK-MEBLE Teresa Bąk",
+        "nip": "9990568708",
+        "typ": "osoba_fizyczna"
+      },
+      "podpisujacy": [
+        {
+          "imie_nazwisko": "Teresa Bąk"
+        }
+      ]
+    }
+  ],
+  "pelnomocnicy": [
+    {
+      "imie_nazwisko": "Grzegorz Mazurek",
+      "pesel": null
+    }
+  ]
+}

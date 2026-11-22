@@ -1,0 +1,24 @@
+{
+  "mocodawca": [
+    {
+      "data": {
+        "imie_nazwisko": "Łukasz Pawlik",
+        "krs": null,
+        "nazwa": "PAWLIK-TRANS Łukasz Pawlik",
+        "nip": "9995730734",
+        "typ": "osoba_fizyczna"
+      },
+      "podpisujacy": [
+        {
+          "imie_nazwisko": "Łukasz Pawlik"
+        }
+      ]
+    }
+  ],
+  "pelnomocnicy": [
+    {
+      "imie_nazwisko": "Marta Gołąb",
+      "pesel": null
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+# DEMO klasy opisowej: same nazwy i opisy pól, bez wyrażeń regularnych i bez zmiany kodu.
+nazwa: odpowiedz_na_odwolanie
+opis: Odpowiedź zamawiającego na odwołanie do Krajowej Izby Odwoławczej
+rozpoznanie:
+  tytul: [odpowiedź na odwołanie]
+  slowa: [odpowiedź na odwołanie, wnosi o oddalenie odwołania, w odpowiedzi na odwołanie]
+pola:
+  OdpowiedzNaOdwolanie:
+    sygnatura: sygnatura akt sprawy przed KIO, np. KIO 1234/26
+    data: {opis: data sporządzenia pisma, typ: data}
+    wniosek: {opis: czego zamawiający żąda co do odwołania, wybor: [oddalenie, odrzucenie, umorzenie]}
+  Zamawiajacy:
+    nazwa: pełna nazwa zamawiającego, który składa odpowiedź
+    nip: {opis: NIP zamawiającego, typ: cyfry}
+  Odwolujacy:
+    nazwa: pełna nazwa wykonawcy, który wniósł odwołanie
+  pelnomocnik: {opis: imię i nazwisko osoby podpisującej odpowiedź w imieniu zamawiającego, typ: osoba}

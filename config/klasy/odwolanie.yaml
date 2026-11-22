@@ -5,17 +5,55 @@ opis: Odwołanie wykonawcy do Prezesa KIO
 
 rozpoznanie:
   prog: 5
+  # Dowód pozytywny (Z37): odwołanie tylko z treścią odwołania (tytuł, „wnoszę odwołanie”, zarzut) i zamawiającym;
+  # inaczej {}. Adresat KIO i odwołujący bywają pominięte w krótkich pismach, więc nie są wymagane.
+  wymagane:
+    - ['wnosz\w*\s+(?:niniejszym\s+)?(?:o\s+)?odwo[łl]ani', 'zarzut\w*', 'zarzuca\w*', 'O\s?D\s?W\s?O\s?[ŁL]\s?A\s?N\s?I\s?E', 'odwo[łl]anie\s+(?:od|wobec|na)\s']
+    - ['zamawiaj[aą]c\w*', 'instytucj\w*\s+(?:zamawiaj|prowadz)']
+  tytul:
+    'ODWO[ŁL]ANIE(?!SI[ĘE]|NA)': 5
+    'PREZESKRAJOWEJIZBYODWO[ŁL]AWCZEJ': 1
   slowa:
-    '^\s*O\s?D\s?W\s?O\s?[ŁL]\s?A\s?N\s?I\s?E\s*$': 4
-    'odwo[łl]uj[aą]c\w*\s*:': 3
-    'krajow\w+\s+izb\w+\s+odwo[łl]awcz': 2
-    'zamawiaj[aą]c\w*\s*[:(]': 1
-    'zarzut|zarzuca': 1
-    'wnosz[eę]\s+(?:o|odwo[łl]anie)': 1
+    '^\s*O\s?D\s?W\s?O\s?[ŁL]\s?A\s?N\s?I\s?E\s*$': 2
+    'odwo[łl]uj[aą]c\w*\s*(?:\([^)]{0,30}\))?\s*[:\-–]': 2
+    'krajow\w+\s+izb\w+\s+odwo[łl]awcz': 1
+    'wnosz[eę]\s+(?:niniejszym\s+)?odwo[łl]anie|wnosi\s+odwo[łl]anie': 3
+    'zarzu(?:t|ca|cam)': 1
+    'czynno[śs]\w*\s+(?:i|lub)\s+zaniecha': 2
+    'art\.\s*513|art\.\s*505|prawo\s+zam[oó]wie[ńn]\s+publicznych|\bPzp\b': 1
+    'zamawiaj[aą]c\w*\s*[:(\-–]': 1
+    'nakazanie\s+zamawiaj': 1
+  # Pismo zamawiającego przekazujące wykonawcom kopię odwołania (art. 524 Pzp): „informuje, że … wniósł odwołanie”,
+  # „zawiadamia o wniesieniu odwołania”, wezwanie do przystąpienia i termin 3 dni na przystąpienie. Takie pismo ma
+  # w załączeniu pełne odwołanie, więc sygnały dodatnie są komplet; wyklucza je dopiero formuła nadawcy-zamawiającego.
+  wyklucz:
+    - 'wzywa\w*\s+(?:\w+\s+){0,5}?do\s+(?:przyst[ąa]pieni\w+\s+do\s+post[ęe]powania\s+odwo[łl]awcz|wzi[ęe]cia\s+udzia[łl]u\s+w\s+post[ęe]powaniu\s+(?:odwo[łl]awcz|tocz[ąa]cym\s+si[ęe]\s+w\s+wyniku\s+wniesienia\s+odwo[łl]ania))'
+    - '(?:informuj\w*|zawiadamia\w*)\s*,?\s*(?:[żz]e|i[żz])\b(?:[^.]|(?<=\d)\.|(?<=\sr)\.){0,200}?(?:wni[oó]s[łl]\w*|zosta[łl]o\s+wniesione|wniesione\s+zosta[łl]o|wp[łl]yn[ęe][łl]o)\s+odwo[łl]anie'
+    - '(?:informuj\w*|zawiadamia\w*|informacj\w+|zawiadomieni\w+)\s+o\s+wniesieniu\s+odwo[łl]ania'
+    - 'przyst[ąa]pieni\w+\s+do\s+post[ęe]powania\s+odwo[łl]awczego[^.]{0,160}(?:3|trzech)\s+dni'
+    - 'przyst[ąa]pi\w+\s+do\s+post[ęe]powania[^.]{0,80}(?:3|trzech)\s+dni\s+od\s+(?:dnia\s+)?otrzymania'
+    - '(?:3|trzech)\s+dni\s+od\s+(?:dnia\s+)?otrzymania\s+kopii\s+odwo[łl]ania'
+    - 'zg[łl]oszeni\w+\s+przyst[ąa]pienia\s+do\s+post[ęe]powania\s+odwo[łl]awczego\s+(?:dor[ęe]cza|wnosi|sk[łl]ada)\s+si[ęe]'
+    - 'dzia[łl]aj[ąa]c\s+na\s+podstawie\s+art\.\s*524\b'
+    - 'zamawiaj[aą]cy\s+(?:zamieszcza|udost[ęe]pnia|publikuje)\s+(?:\w+\s+){0,3}?odwo[łl]ani'
+  # pisma innych stron i inne dokumenty postępowania nie są odwołaniem
+  tytul_ujemne:
+    # ogłoszenia TED/BZP, decyzje i inne dokumenty urzędowe
+    'OG[ŁL]OSZENIEO(?:ZAM[ÓO]WIENIU|WYNIKU|ZMIANIE|UDZIELENIU)|OJS\d|DZ\.?U\.?S|BIULETYNZAM[ÓO]WIE[ŃN]PUBLICZNYCH|DECYZJA|BROSZURA|KOMUNIKAT': 8
+    'ODPOWIED[ŹZ]NAODWO[ŁL]ANIE': 10
+    'PRZYST[ĄA]PIENI': 10
+    'WYROK|POSTANOWIENIE': 10
+    'WEZWANIE': 8
+    'INFORMACJAO|OG[ŁL]OSZENIEO|SPECYFIKACJAWARUNK|ZAWIADOMIENIE': 8
+    'PE[ŁL]NOMOCNICTWO': 6
+    'POTWIERDZENIE': 6
 
 # Usuwane przed ekstrakcją (stopki stron przerywają zdania).
 oczysc:
   - '(?m)^[ \t]*Strona\s+\d+\s+z\s+\d+[ \t]*\n?'
+  # pieczątka wpływu wtrącona w tekst skanu („WPŁYNĘŁO / dnia 21.08.2026 L.dz. 199”, podpis kierownika)
+  - '(?m)^[ \t]*WP[ŁL]YN[ĘE][ŁL]O\b[^\n]*\n?(?:[ \t]*dnia\s+\d{1,2}[./-]\d{1,2}[./-]\d{4}[^\n]*\n?)?'
+  - '(?m)^[ \t]*Podpis\s+Kierownika[^\n]*\n?'
 
 sekcje:
   pierwsza_strona:
@@ -23,8 +61,8 @@ sekcje:
     max_znakow: 3500
     globalna: true
   zdanie_w_imieniu:   # "Działając w imieniu wykonawcy X (dalej: „Odwołujący”)" — ten sam w każdym układzie
-    od: 'w\s+imieniu\s+(?:wykonawc\w+\s*:?\s*|konsorcjum\s*:?\s*)?'
-    do: ['\s\(dalej', '\s+oraz\s', ',\s+(?:wnosz|na\s+podstawie|w\s+oparciu)']
+    od: 'w\s+imieniu\s+(?!któr\w+\s)(?!i\s+na\s+rzecz)(?![^(]{0,150}?\s+oraz\s[^(]{0,150}?\(dalej)(?:wykonawc\w+\s*:?\s*|konsorcjum\s*:?\s*|odwo\w{1,2}uj\w{1,2}c\w*\s*[–—:-]?\s*)?'
+    do: ['\s[.,·]?\s?\((?:zwan\w+\s+)?dalej', '(?<=\.)[.,·]\((?:zwan\w+\s+)?dalej', '\s+oraz\s', ',\s+(?:wnosz|na\s+podstawie|w\s+oparciu)', '\s+wnosz\w*\s']
     max_znakow: 200
     globalna: true
   naglowek_odwolujacego:  # część przed treścią odwołania (reprezentacja bywa nad etykietą "Odwołujący:")
@@ -33,105 +71,253 @@ sekcje:
     max_znakow: 4000
     globalna: true
   odwolujacy:
-    od: '(?m)^[ \t]*Odwo[łl]uj[aą]c\w*[ \t]*:'
-    do:
-      - '(?m)^[ \t]*Zamawiaj[aą]c\w*\b[^\n]*[:(]'
+    # gdy etykiety brak, model wskazuje nazwę odwołującego; sekcja zaczyna się od niej (dalej zwykłe reguły)
+    llm: 'Przepisz dosłownie pełną nazwę wykonawcy, który wnosi odwołanie (odwołującego), tak jak jest w nagłówku pisma.'
+    od: &odwolujacy_od '(?m)^[ \t]*(?:[„".,_|]{0,2}[ \t]*Odw[o0][łlt1][uv][ji][aąq]c[yv]\w{0,2}[ \t]*:|Odwo[łl]uj[aą]c\w*[ \t]*(?:\([^)\n]{0,40}\)[ \t]*[:\-–]?|[:\-–]|(?=(?-i:[A-ZŁŚŻŹĆ„"])))|Wykonawc\w+[ \t]+wnosz[aą]c\w*[ \t]+odwo[łl]anie[ \t]*[:\-–]?|Wykonawc\w+[ \t]+wsp[oó]lnie[ \t]+ubiegaj[^\n]*[:\-–]|Wnosz[aą]c\w*[ \t]+odwo[łl]anie[ \t]*[:\-–]?[ \t]*$|[^\w\s]{0,2}[ \t]*Odwo\w{1,3}u\w{1,3}c\w{1,2}[ \t]*:)'
+    do: &odwolujacy_do
+      - '(?m)^[ \t]*(?:[„".,_|]{0,2}[ \t]*Zamawia[ji][aąq]c[yv]\w{0,2}[ \t]*:|Zamawiaj[aą]c(?:y|ym|ych|e)\b(?:[ \t]*\([^)\n]{0,80}\)?|[ \t]*:|[ \t]*[\-–](?=\s)|[ \t]+(?=(?-i:[A-ZŁŚŻŹĆ„"])))|Instytucj\w*[ \t]+(?:zamawiaj[aą]c\w*|prowadz[aą]c\w*[ \t]+post[eę]powanie)[ \t]*[:\-–]?[ \t]*$|[^\w\s]{0,2}[ \t]*Zamawia\w{2,4}c\w{1,2}[ \t]*:)'
       - '(?m)^[ \t]*(?:Wykonawc\w+\s+wybran|Uczestni\w+|Przyst[eę]puj[aą]c)'
       - '(?m)^[ \t]*dotyczy'
       - '(?m)^[ \t]*(?:Prezes|Krajowa\s+Izba)'
       - '(?m)^[ \t]*O\s?D\s?W\s?O\s?[ŁL]\s?A\s?N\s?I\s?E[ \t]*$'
+  odwolujacy_lider:   # blok po „Lider konsorcjum:” / „Pełnomocnik konsorcjum:” wewnątrz bloku odwołującego
+    # także „2) Lider konsorcjum (pełnomocnik wykonawców …):” — numer pozycji i dopisek w nawiasie
+    od: '(?m)^[ \t]*(?:\d{1,2}[.)][ \t]*)?(?:lider\w*|pe[łl]nomocnik\w*)\s+konsorcjum\w*[ \t]*(?:\([^)\n]{0,120}\))?[ \t]*[:\-–]?[ \t]*\n?'
+    w: odwolujacy
+    # koniec na pozycji partnera (także numerowanej „2) Partner konsorcjum:”): identyfikatory partnera nie są danymi
+    # odwołującego; reprezentacja konsorcjum pod listą jest czytana z całego bloku (pelnomocnik_blok)
+    do: ['(?m)^[ \t]*(?:\d{1,2}[.)][ \t]*)?(?:cz[łl]on\w*|partner\w*|uczestnik\w*)\s+konsorcjum']
+  odwolujacy_lider_pozycja:   # „1) Firma X (Lider Konsorcjum)” na liście członków: tylko pozycja lidera, do następnej
+    # pozycji albo do reprezentacji; identyfikatory partnerów nie są danymi odwołującego (referencja UZP: sam lider),
+    # pełnomocnik stoi pod listą i jest czytany z całego bloku odwołującego (pelnomocnik_blok)
+    od: '(?m)^[ \t]*(?:(?:\(?\d{1,2}[.)/]|[a-h]\)|[–—•-])[ \t]*)?(?=[^\n]{3,200}\((?:lider|pe[łl]nomocnik)\w*[ \t]+konsorcjum\w*\)[ \t]*$)'
+    w: odwolujacy
+    do: ['(?m)^[ \t]*(?:\(?\d{1,2}[.)/]|[a-h]\)|[–—•-])[ \t]*(?=(?-i:[A-ZŁŚŻŹĆÓ„"]))', '(?m)^[ \t]*(?:reprezentowan|pe[łl]nomocni|adres\s+do\s|dzia[łl]aj[aą]c)']
   zamawiajacy:
-    od: '(?m)^[ \t]*Zamawiaj[aą]c\w*\b[^\n]*[:(]'
+    llm: 'Przepisz dosłownie pełną nazwę zamawiającego (instytucji prowadzącej postępowanie), tak jak jest w nagłówku pisma.'
+    od: '(?m)^[ \t]*(?:[„".,_|]{0,2}[ \t]*Zamawia[ji][aąq]c[yv]\w{0,2}[ \t]*:|Zamawiaj[aą]c(?:y|ym|ych|e)\b(?:[ \t]*\([^)\n]{0,80}\)?|[ \t]*:|[ \t]*[\-–](?=\s)|[ \t]+(?=(?-i:[A-ZŁŚŻŹĆ„"])))|Instytucj\w*[ \t]+(?:zamawiaj[aą]c\w*|prowadz[aą]c\w*[ \t]+post[eę]powanie)[ \t]*[:\-–]?[ \t]*$|[^\w\s]{0,2}[ \t]*Zamawia\w{2,4}c\w{1,2}[ \t]*:)'
     do:
-      - '(?m)^[ \t]*Odwo[łl]uj[aą]c\w*[ \t]*:'
+      - '(?m)^[ \t]*(?:[„".,_|]{0,2}[ \t]*Odw[o0][łlt1][uv][ji][aąq]c[yv]\w{0,2}[ \t]*:|Odwo[łl]uj[aą]c\w*[ \t]*(?:\([^)\n]{0,40}\)[ \t]*[:\-–]?|[:\-–]|(?=(?-i:[A-ZŁŚŻŹĆ„"])))|Wykonawc\w+[ \t]+wnosz[aą]c\w*[ \t]+odwo[łl]anie[ \t]*[:\-–]?|Wykonawc\w+[ \t]+wsp[oó]lnie[ \t]+ubiegaj[^\n]*[:\-–]|Wnosz[aą]c\w*[ \t]+odwo[łl]anie[ \t]*[:\-–]?[ \t]*$)'
       - '(?m)^[ \t]*dotyczy'
       - '(?m)^[ \t]*(?:Prezes|Krajowa\s+Izba)'
       - '(?m)^[ \t]*O\s?D\s?W\s?O\s?[ŁL]\s?A\s?N\s?I\s?E[ \t]*$'
       - '(?m)^[ \t]*Warto[śs][ćc]\s+zam'
+      - '(?m)^[ \t]*Za[łl][ąa]cznik\w*[ \t]*:'   # lista załączników na końcu pisma nie jest listą zamawiających
+      - '(?m)^[ \t]*(?:Wpis\s+od\s+odwo[łl]ani|Dzia[łl]aj[aą]c\s+w\s+imieniu)'
+    max_znakow: 2000   # blok kilku zamawiających ma kilkaset znaków; bez granicy (nieczytelne „Dotyczy”/tytuł) szedłby do końca pisma
   dotyczy:
     od: '(?m)^[ \t]*dotyczy'
     max_znakow: 900
-  pelnomocnik:
-    od: 'reprezentowan\w*\s+przez\s*:?'
+  pelnomocnik:   # także nagłówek kolumny tabeli „Pełnomocnik Odwołującego” (obok kolumna Zamawiającego)
+    od: &pelnomocnik_od '(?m:^[ \t]*pe[łl]nomocnik\s+odwo[łl]uj\w*[ \t]*\n(?:[ \t]*(?:kontakt|dane|adres|pe[łl]nomocnik)\b[^\n]*\n)?)|(?m:^[ \t]*pe[łl]nomocnik(?:\s+odwo[łl]uj\w*)?[ \t]*:)|(?:reprezentowan\w*\s+przez(?!\s*:?\s*(?:pana\s+|pani\s+)?(?:prezes\w*|wiceprezes\w*|cz[łl]on\w*\s+zarz|zarz[aą]d\w*|komplementariusz\w*|wsp[oó]lnik\w*|prokurent\w*|w[łl]a[śs]ciciel\w*|burmistrz\w*|w[oó]jt\w*|dyrektor\w*|kierownik\w*|rektor\w*|starost\w*)\b)|dzia[łl]aj[aą]c\w*\s+przez(?!\s*:?\s*(?:pana\s+|pani\s+)?(?:prezes\w*|wiceprezes\w*|cz[łl]on\w*\s+zarz|zarz[aą]d\w*|komplementariusz\w*|wsp[oó]lnik\w*|prokurent\w*|w[łl]a[śs]ciciel\w*|burmistrz\w*|w[oó]jt\w*|dyrektor\w*|kierownik\w*|rektor\w*|starost\w*)\b)|w\s+imieniu\s+któr\w+\s+dzia[łl]a\w*)\s*(?:pe[łl]nomocnik\w*)?\s*[:\-–]?'
+  odwolujacy_po_adresacie:   # zapas bez etykiety „Odwołujący:” (nieczytelna albo inne słowo): blok pod adresem Izby
+    od: '(?m)^[^\n]*Krajow\w+[^\n]{0,12}Odwo\w{1,3}awcz\w*[ \t]*\n(?:[^\n]*\n){0,2}?[ \t]*\d{2}-\d{3}[ \t]+Warszaw\w*[ \t]*\n'
+    do: *odwolujacy_do
+    max_znakow: 1500
+  odwolujacy_caly:       # cały blok odwołującego, także gdy elementem listy jest sama pozycja lidera konsorcjum
+    od: *odwolujacy_od
+    do: *odwolujacy_do
+    globalna: true
+  pelnomocnik_blok:      # pełnomocnik w całym bloku odwołującego (pod listą członków konsorcjum)
+    od: *pelnomocnik_od
+    w: odwolujacy_caly
+  kancelaria_w_bloku:    # linia z nazwą kancelarii, pod którą stoi adres (blok pełnomocnika bez etykiety adresu)
+    od: &kancelaria_od '(?m)^(?=[^\n]*(?:kancelari\w*|wsp[oó]lnic\w*|adwokack\w*|radc[oó]w\s+prawnych|radcowie\s+prawni|spółk\w+\s+partnersk\w*|partnerzy|sp\.\s?p\.)[^\n]*(?:,[ \t]*(?:ul|al|pl|os)\.|\n[ \t]*(?:(?:ul|al|pl|os)\.|\d{2}-\d{3}\b)))'
+    do: &kancelaria_do ['(?:,[ \t]*|\n[ \t]*)(?:(?:ul|al|pl|os)\.|\d{2}-\d{3}\b)']
+    w: pelnomocnik_blok
+  # Zapas, gdy etykieta „reprezentowany przez pełnomocnika:” jest nieczytelna albo inna (w skanach bywa kursywą
+  # z podkreśleniem): pełnomocnik to pierwsza linia bloku odwołującego zaczynająca się tytułem zawodowym.
+  po_pelnomocniku:       # od tej linii do końca bloku (kancelaria, adres, e-mail pełnomocnika)
+    od: &po_pelnomocniku_od '(?m)^(?=[ \t]*(?i:radca[ \t]+prawny|radczyni[ \t]+prawna|r\.[ \t]?pr\.|adwokat|adw\.|apl\.[ \t]?(?:adw|radc)\.?|aplikant[ \t]+\w+|mec\.)[ \t]+[A-ZŁŚŻŹĆÓ])'
+    flagi: [m]
+  po_pelnomocniku_blok:  # to samo w całym bloku odwołującego (gdy elementem listy jest sama pozycja lidera konsorcjum)
+    od: *po_pelnomocniku_od
+    flagi: [m]
+    w: odwolujacy_caly
+  kancelaria_po_pelnomocniku:
+    od: *kancelaria_od
+    do: *kancelaria_do
+    w: po_pelnomocniku
+  kancelaria_po_pelnomocniku_blok:
+    od: *kancelaria_od
+    do: *kancelaria_do
+    w: po_pelnomocniku_blok
+  podpis_pelnomocnika:   # „radca prawny Jan Kowalski – pełnomocnik Odwołującego” (linia podpisu na końcu pisma)
+    od: '(?m)^(?=[^\n]{5,90}[–—-][ \t]*pe[łl]nomocnik\w*[ \t]+odwo[łl]uj\w*[ \t]*$)'
+    do: ['[ \t]*[–—-][ \t]*pe[łl]nomocnik']
+    globalna: true
   pelnomocnik_naglowek:
-    od: 'reprezentowan\w*\s+przez\s*:?'
+    od: '(?m:^[ \t]*pe[łl]nomocnik\s+odwo[łl]uj\w*[ \t]*\n(?:[ \t]*(?:kontakt|dane|adres|pe[łl]nomocnik)\b[^\n]*\n)?)|(?:reprezentowan\w*\s+przez(?!\s*:?\s*(?:pana\s+|pani\s+)?(?:prezes\w*|wiceprezes\w*|cz[łl]on\w*\s+zarz|zarz[aą]d\w*|komplementariusz\w*|wsp[oó]lnik\w*|prokurent\w*|w[łl]a[śs]ciciel\w*|burmistrz\w*|w[oó]jt\w*|dyrektor\w*|kierownik\w*|rektor\w*|starost\w*)\b)|dzia[łl]aj[aą]c\w*\s+przez(?!\s*:?\s*(?:pana\s+|pani\s+)?(?:prezes\w*|wiceprezes\w*|cz[łl]on\w*\s+zarz|zarz[aą]d\w*|komplementariusz\w*|wsp[oó]lnik\w*|prokurent\w*|w[łl]a[śs]ciciel\w*|burmistrz\w*|w[oó]jt\w*|dyrektor\w*|kierownik\w*|rektor\w*|starost\w*)\b)|w\s+imieniu\s+któr\w+\s+dzia[łl]a\w*)\s*(?:pe[łl]nomocnik\w*)?\s*[:\-–]?'
     w: naglowek_odwolujacego
+  zarzut_1:              # „Zarzut nr 1 – naruszenia art. … przez odrzucenie oferty … (informacja z dnia …)”
+    # tylko zwięzły zarzut „naruszenia art. … przez <czynność>”; zarzut opisowy („Zarzut nr 1 nieopisania …:”) nie
+    # nazywa czynności (trening UZP: powód z listy czynności), więc wtedy zostają pierwsza_czynnosc i zdanie_czynnosci
+    od: '(?m)^[ \t]*(?:Zarzut\s+(?:nr\s*)?1|1\.\s*Zarzut)\s*[–—:\-]\s*(?=narusz\w*\s+art)'
+    do: ['\n[ \t]*(?:Zarzut\s+(?:nr\s*)?2|2\.\s*Zarzut)\b', '\n\s*\n']
+    max_znakow: 500
   pierwsza_czynnosc:     # "polegających na: 1) ..." (pierwszy zarzut)
-    od: 'polegaj[aą]c\w*\s+na\s*:?\s*(?:1\)\s*)?'
-    do: ['\n\s*2\)', ';']
-    max_znakow: 400
+    od: '(?:polegaj[aą]c\w*\s+na|wnosz[eę]\s+(?:niniejszym\s+)?odwo[łl]anie\s+(?:wobec|od|na))\s*:?\s*(?:1[.)]\s*)?'
+    # koniec: punkt 2 albo nagłówek zarzutów/wniosków; 900 znaków, bo między „wobec:” a punktem 1 (i w środku punktu)
+    # bywa koniec strony: stopka kancelarii, numer strony, nagłówek bieżący
+    do: ['\n\s*2[.)]', '\n[ \t]*(?:Zaskar[żz]on\w+\s+czynno|Zarzucam\b|Wobec\s+powy[żz]szego|Maj[aą]c\s+na\s+uwadze)']
+    max_znakow: 900
+  lista_czynnosci:       # cała lista „wobec: 1. … 2. …” (zapas, gdy punkt 1 nie nazywa czynności ze słownika)
+    od: '(?:polegaj[aą]c\w*\s+na|wnosz[eę]\s+(?:niniejszym\s+)?odwo[łl]anie\s+(?:wobec|od|na))\s*:?\s*'
+    do: ['\n[ \t]*(?:Zaskar[żz]on\w+\s+czynno|Zarzucam\b|Wobec\s+powy[żz]szego|Maj[aą]c\s+na\s+uwadze)']
+    max_znakow: 1500
+  zdanie_terminu:        # „Informacja o zaskarżonej czynności została przekazana Odwołującemu / opublikowana w dniu 05.07.2026 r.”
+    od: 'informacj\w+\s+o\s+(?:zaskar[żz]on\w+\s+)?czynno[śs]ci\w*(?:\s+zamawiaj\w+)?\s+zosta[łl]a\s+(?:[\wąćęłńóśźż]+\s+){1,3}?(?:w\s+dniu|dnia|dn\.)\s+'
+    max_znakow: 40
   zdanie_czynnosci:      # "Zamawiający w dniu ... <czynność>." / "Zamawiający zamieścił ... w dniu ..."
-    od: 'Zamawiaj[aą]cy\s+(?:w\s+dniu|zamie[śs]ci[łl]|opublikowa[łl]|przekaza[łl]|udost[eę]pni[łl]|unieważni[łl]|odrzuci[łl]|wykluczy[łl]|dokona[łl])'
+    od: 'Zamawiaj[aą]cy\s+(?:w\s+dniu|dnia|zamie[śs]ci[łl]|opublikowa[łl]|przekaza[łl]|udost[eę]pni[łl]|unieważni[łl]|odrzuci[łl]|wykluczy[łl]|dokona[łl])'
     z_naglowkiem: true
     do: ['\.\s', 'Zarzut']
     max_znakow: 300
 
 slowniki:
   powody:   # id + opis kanoniczny (UZP); wzorce: najwcześniejsze trafienie w tekście czynności wygrywa
-    - {id: 1, opis: 'Decyzja o odrzuceniu oferty', wzorce: ['odrzuc\w*\s+ofert']}
-    - {id: 2, opis: 'Ogłoszenie wyboru oferty', wzorce: ['wyb[oó]r\w*\s+(?:jako\s+)?(?:oferty|najkorzystniejsz)', 'og[łl]osi\w*\s+wyb[oó]r', 'dokona\w*\s+wyboru']}
+    - {id: 1, opis: 'Decyzja o odrzuceniu oferty', wzorce: ['odrzuc\w*\s+(?:przez\s+zamawiaj\w+\s+)?ofert', 'za\s+odrzucon']}
+    - {id: 2, opis: 'Ogłoszenie wyboru oferty', wzorce: ['wyb[oó]r\w*\s+(?:jako\s+)?(?:oferty|najkorzystniejsz)', 'og[łl]osi\w*\s+wyb[oó]r', 'dokona\w*\s+wyboru', 'za\s+najkorzystniejsz', 'najkorzystniejsz\w*\s+ofert']}
     - {id: 3, opis: 'Decyzja o wykluczeniu wykonawcy', wzorce: ['wyklucz\w*']}
-    - {id: 4, opis: 'Publikacja specyfikacji warunków zamówienia (SWZ)', wzorce: ['zamie[śs]ci\w*\s+og[łl]oszeni', 'opublikowa\w*\s+(?:specyfikacj|SWZ|og[łl]oszeni)', 'ustaleni\w*\s+tre[śs]ci\s+(?:SWZ|specyfikacji)', 'publikacj\w*\s+(?:SWZ|specyfikacji)']}
-    - {id: 5, opis: 'Modyfikacja treści SWZ', wzorce: ['zmodyfikowa\w*', 'modyfikacj\w*']}
-    - {id: 6, opis: 'Odpowiedzi i wyjaśnienia do SWZ', wzorce: ['odpowiedzi\s+i\s+wyja[śs]nienia', 'udziel\w*\s+(?:[^;]{0,40}?)odpowiedzi', 'odpowiedzi\s+na\s+pytania']}
-    - {id: 7, opis: 'Zaniechanie odrzucenia oferty', wzorce: ['zaniecha\w*\s+odrzuceni', 'nie\s+odrzuci']}
-    - {id: 8, opis: 'Zaniechanie wykluczenia wykonawcy', wzorce: ['zaniecha\w*\s+wykluczeni', 'nie\s+wykluczy']}
-    - {id: 9, opis: 'Decyzja o unieważnieniu postępowania', wzorce: ['uniewa[żz]ni\w*\s+post[eę]powani']}
-    - {id: 10, opis: 'Zaniechanie unieważnienia postępowania', wzorce: ['zaniecha\w*\s+uniewa[żz]nieni']}
+    - {id: 4, opis: 'Publikacja specyfikacji warunków zamówienia (SWZ)', wzorce: ['zamie[śs]ci\w*\s+og[łl]oszeni', 'opublikowa\w*\s+(?:specyfikacj|SWZ|og[łl]oszeni)', 'ustaleni\w*\s+tre[śs]ci\s+(?:SWZ|specyfikacji)', 'ustaleni\w*\s+w\s+(?:SWZ|specyfikacji)', '(?:specyfikacj\w*\s+warunk\w*\s+zam[oó]wieni\w*|SWZ)[^;]{0,15}?opublikowan', 'publikacj\w*\s+(?:SWZ|specyfikacji)', 'okre[śs]leni\w*\s+w\s+(?:SWZ|specyfikacji)', 'sformu[łl]owani\w*\s+(?:postanowie\w*\s+)?(?:SWZ|specyfikacji)', 'postanowie\w*\s+(?:SWZ|specyfikacji)', '(?:specyfikacj\w*\s+warunk\w*\s+zam[oó]wieni\w*(?:\s*\(SWZ\))?|SWZ)[^;]{0,15}?(?:zamieszczon|udost[eę]pnion|og[łl]oszon|przekazan)', 'okre[śs]lon\w*\s+w\s+(?:SWZ|specyfikacji)']}
+    - {id: 5, opis: 'Modyfikacja treści SWZ', wzorce: ['zmodyfikowa\w*', 'modyfikacj\w*', 'zmian\w*\s+(?:tre[śs]ci\s+|postanowie\w*\s+)?(?:SWZ|specyfikacji)', 'zmienion\w*\s+(?:tre[śs]\w*\s+|postanowie\w*\s+)?(?:SWZ|specyfikacji)']}
+    - {id: 6, opis: 'Odpowiedzi/wyjaśnienia do SWZ', wzorce: ['odpowiedzi\s+i\s+wyja[śs]nienia', 'udziel\w*\s+(?:[^;]{0,40}?)odpowiedzi', 'odpowiedzi\s+na\s+pytania', 'udziel\w*\s+(?:[^;]{0,40}?)wyja[śs]nie[ńn]\s+tre[śs]ci', 'wyja[śs]nie\w*\s+tre[śs]ci\s+(?:SWZ|specyfikacji)', 'odpowiedzi\s+(?:i|oraz|lub)\s+wyja[śs]nie\w*', 'odpowiedzi\s*/\s*wyja[śs]nie\w*', 'odpowiedzi\s+(?:[\wąćęłńóśźż]+\s+){0,2}?na\s+(?:pytania|zapytania|wnioski)', 'wyja[śs]nie\w*\s+(?:zamawiaj\w+\s+)?(?:do\s+)?(?:tre[śs]ci\s+)?(?:SWZ|specyfikacji)']}
+    - {id: 7, opis: 'Zaniechanie odrzucenia oferty', wzorce: ['zaniecha\w*\s+(?:(?:przez\s+zamawiaj\w+|czynno[śs]ci|dokonania)\s+){0,2}odrzuceni', 'nie\s+odrzuci', 'nieodrzuceni', 'brak\w*\s+odrzuceni']}
+    - {id: 8, opis: 'Zaniechanie wykluczenia wykonawcy', wzorce: ['zaniecha\w*\s+(?:(?:przez\s+zamawiaj\w+|czynno[śs]ci|dokonania)\s+){0,2}wykluczeni', 'nie\s+wykluczy', 'niewykluczeni', 'brak\w*\s+wykluczeni']}
+    - {id: 9, opis: 'Decyzja o unieważnieniu postępowania', wzorce: ['uniewa[żz]ni\w*\s+(?:przez\s+zamawiaj\w+\s+)?post[eę]powani']}
+    - {id: 10, opis: 'Zaniechanie unieważnienia postępowania', wzorce: ['zaniecha\w*\s+(?:(?:przez\s+zamawiaj\w+|czynno[śs]ci|dokonania)\s+){0,2}uniewa[żz]nieni', 'brak\w*\s+uniewa[żz]nieni']}
     - {id: 11, opis: 'Opis przedmiotu zamówienia (OPZ)', wzorce: ['opis\w*\s+przedmiotu\s+zam[oó]wienia', '\bOPZ\b']}
+    - {id: 12, opis: 'Projektowane postanowienia umowy', wzorce: ['projektowan\w*\s+postanowie\w*\s+umowy', '\bPPU\b', 'wz[oó]r\w*\s+umowy', 'istotn\w*\s+postanowie\w*\s+umowy', 'postanowie\w*\s+(?:projektu\s+)?umowy', 'projekt\w*\s+umowy', 'postanowie\w*\s+umown']}
+  powody_rdzenie:
+    - {id: 7, opis: 'Zaniechanie odrzucenia oferty', wzorce: ['(?:zaniecha|brak|nie\s?dokona)\w*(?:(?!wyklucz|uniewa[żz]ni|wyb[oó]r|wybra)[^;.]){0,120}?odrzuc']}
+    - {id: 8, opis: 'Zaniechanie wykluczenia wykonawcy', wzorce: ['(?:zaniecha|brak|nie\s?dokona)\w*(?:(?!odrzuc|uniewa[żz]ni|wyb[oó]r|wybra)[^;.]){0,120}?wyklucz']}
+    - {id: 10, opis: 'Zaniechanie unieważnienia postępowania', wzorce: ['(?:zaniecha|brak|nie\s?dokona)\w*(?:(?!odrzuc|wyklucz|wyb[oó]r|wybra)[^;.]){0,120}?uniewa[żz]ni']}
+    - {id: 1, opis: 'Decyzja o odrzuceniu oferty', wzorce: ['odrzuc\w*']}
+    - {id: 2, opis: 'Ogłoszenie wyboru oferty', wzorce: ['wyb[oó]r\w*', 'wybra\w+', 'najkorzystniejsz\w*']}
+    - {id: 3, opis: 'Decyzja o wykluczeniu wykonawcy', wzorce: ['wyklucz\w*']}
+    - {id: 9, opis: 'Decyzja o unieważnieniu postępowania', wzorce: ['uniewa[żz]ni\w*']}
+    - {id: 6, opis: 'Odpowiedzi/wyjaśnienia do SWZ', wzorce: ['odpowied\w+', 'wyja[śs]ni\w+\s+(?:[^;.]{0,60}?)(?:SWZ|specyfikacj)']}
+    - {id: 5, opis: 'Modyfikacja treści SWZ', wzorce: ['zmian\w*', 'zmieni\w*']}
+    - {id: 11, opis: 'Opis przedmiotu zamówienia (OPZ)', wzorce: ['opis\w*\s+przedmiot', 'przedmiot\w*\s+zam[oó]wienia\s+opis']}
+    - {id: 12, opis: 'Projektowane postanowienia umowy', wzorce: ['um[oó]w\w*']}
+    - {id: 4, opis: 'Publikacja specyfikacji warunków zamówienia (SWZ)', wzorce: ['\bSWZ\b', 'specyfikacj\w*', 'dokument\w*\s+zam[oó]wienia', 'og[łl]oszeni\w*\s+o\s+zam[oó]wieniu', 'warunk\w*\s+(?:udzia[łl]u|zam[oó]wienia)']}
+
+# Zamawiający prowadzący postępowanie wskazany zdaniem w treści (przy kilku zamawiających wspólnie):
+# „postępowanie przygotowuje i przeprowadza Gmina X” -> ten zamawiający 1, pozostali 0 (wskazanie.py)
+wskazanie:
+  - lista: Zamawiajacy
+    pole_nazwy: nazwa
+    pole: prowadzacy_postepowanie
+    regex: 'post[eę]powani\w*\s+(?:przygotowuje\s+i\s+)?(?:przeprowadza|prowadzi)\s+(?P<v>[A-ZŁŚŻŹĆ][^,.;:\n]{3,100})'
 
 wynik:
   OdwolanieKIO:
-    data:
+    data:   # bez modelu: gdy pismo nie ma „Miejscowość, data” w nagłówku, referencja UZP ma null; linia z datą, pod
+            # którą stoi podpis (r. pr., adw., „podpis”, „załącznik”), to data przy podpisie, nie nagłówek
       metody:
-        - regex: '(?m)^[ \t]*[A-ZŁŚŻŹĆ][\wąćęłńóśźż]+(?:[ -][\wąćęłńóśźż]+){0,2},[ \t]*(?:dnia[ \t]+)?(?P<v>\d{1,2}(?:[.\-/]\d{1,2}[.\-/]\d{4}|[ \t]+\w+[ \t]+\d{4}))'
+        - regex: '(?m)^[ \t]*(?!Zamawiaj|Odwo[łl]uj|Wykonawc|Dnia\b)[A-ZŁŚŻŹĆ][\wąćęłńóśźż]+(?:[ -][A-ZŁŚŻŹĆ][\wąćęłńóśźż]+){0,2},?[ \t]*(?:dnia[ \t]+|dn\.[ \t]*)?(?P<v>\d{4}-\d{2}-\d{2}|\d{1,2}(?:[.\-/]\d{1,2}[.\-/]\d{4}|[ \t]+\w+[ \t]+\d{4}))(?![^\n]*\n[ \t]*(?:r\.\s?pr\.|adw\.|radca\s|adwokat|apl\.|\(?podpis|za[łl][ąa]cz|w\s+imieniu|za\s+odwo))'
           flagi: [m]
+          w: pierwsza_strona
+        # data słownie w nagłówku: „Gdańsk, dnia szóstego października 2026 r.” (tylko pierwsze linie pisma)
+        - regex: '\A(?:[^\n]*\n){0,3}?[ \t]*(?!Zamawiaj|Odwo[łl]uj|Wykonawc|Dnia\b)[A-ZŁŚŻŹĆ][\wąćęłńóśźż]+(?:[ -][A-ZŁŚŻŹĆ][\wąćęłńóśźż]+){0,2},?[ \t]*(?:dnia[ \t]+)?(?P<v>[a-ząćęłńóśźż]+ego(?:[ \t]+[a-ząćęłńóśźż]+ego)?[ \t]+[a-ząćęłńóśźż]+[ \t]+\d{4})'
           w: pierwsza_strona
       normalizuj: [data_iso]
     czynnosc_dzien:
       metody:
+        # zdanie o zachowaniu terminu podaje dzień czynności wprost i zawsze cyframi; lista „wobec:” bywa przecięta
+        # końcem strony albo pieczęcią wpływu z inną datą, więc jest drugim źródłem
         - calosc: true
-          w: [pierwsza_czynnosc, zdanie_czynnosci]
+          w: [zdanie_terminu]
+        - calosc: true
+          w: [zarzut_1, pierwsza_czynnosc, zdanie_czynnosci]
+        # siatka modelu (przełącznik `siatka_modelu` w config/aplikacja.yaml): brak znanego zdania o czynności albo
+        # zdanie bez daty; odpowiedź musi być jedną z dat stojących w dokumencie
+        - llm: 'Przepisz dosłownie datę pierwszej zaskarżonej czynności zamawiającego (dzień, w którym zamawiający jej dokonał, opublikował dokument albo poinformował o niej wykonawcę), tak jak jest zapisana w dokumencie. Jeśli jej nie ma: BRAK.'
+          siatka: true
+          max_znakow: 5000
+          kandydaci: '\d{4}[.\-/]\d{1,2}[.\-/]\d{1,2}|\d{1,2}[.\-/]\d{1,2}[.\-/]\d{4}|\d{1,2}[ \t]+[a-ząćęłńóśźż]+[ \t]+\d{4}'
       normalizuj: [data_iso]
     czynnosc_powod_id:
       metody:
         - slownik: powody
-          w: [pierwsza_czynnosc, zdanie_czynnosci]
+          w: [zarzut_1, pierwsza_czynnosc, zdanie_czynnosci]
           zwroc: id
+        - slownik: powody_rdzenie  # zapas: same rdzenie słów w punkcie 1
+          w: [pierwsza_czynnosc]
+          zwroc: id
+        - slownik: powody          # punkt 1 bez czynności: dalsze punkty listy
+          w: [lista_czynnosci]
+          zwroc: id
+        - slownik: powody_rdzenie
+          w: [lista_czynnosci]
+          zwroc: id
+        # siatka modelu: żaden wzorzec słownika nie pasuje; model wybiera numer pozycji z listy zamkniętej (12 pozycji
+        # słownika `powody` dopisane do pytania), odpowiedź spoza listy = brak. To samo pytanie i ten sam tekst
+        # w czynnosc_powod_id i czynnosc_opis = jedno zapytanie (pamięć klienta).
+        - llm: 'Której czynności albo zaniechania zamawiającego dotyczy odwołanie (pierwsza zaskarżona czynność)? To pytanie zamknięte: odpowiedz samym numerem pozycji z listy poniżej (nie cytatem z dokumentu) albo BRAK.'
+          siatka: true
+          z_slownika: powody
+          zwroc: id
+          max_znakow: 5000
       typ: int
     czynnosc_opis:
       metody:
         - slownik: powody
-          w: [pierwsza_czynnosc, zdanie_czynnosci]
+          w: [zarzut_1, pierwsza_czynnosc, zdanie_czynnosci]
           zwroc: opis
+        - slownik: powody_rdzenie  # zapas: same rdzenie słów w punkcie 1
+          w: [pierwsza_czynnosc]
+          zwroc: opis
+        - slownik: powody          # punkt 1 bez czynności: dalsze punkty listy
+          w: [lista_czynnosci]
+          zwroc: opis
+        - slownik: powody_rdzenie
+          w: [lista_czynnosci]
+          zwroc: opis
+        - llm: 'Której czynności albo zaniechania zamawiającego dotyczy odwołanie (pierwsza zaskarżona czynność)? To pytanie zamknięte: odpowiedz samym numerem pozycji z listy poniżej (nie cytatem z dokumentu) albo BRAK.'
+          siatka: true
+          z_slownika: powody
+          zwroc: opis
+          max_znakow: 5000
     miejscowosc:
       metody:
-        - regex: '(?m)^[ \t]*(?P<v>[A-ZŁŚŻŹĆ][\wąćęłńóśźż]+(?:[ -][\wąćęłńóśźż]+){0,2}),[ \t]*(?:dnia[ \t]+)?\d{1,2}(?:[.\-/]\d{1,2}[.\-/]\d{4}|[ \t]+\w+[ \t]+\d{4})'
+        - regex: '(?m)^[ \t]*(?P<v>(?!Zamawiaj|Odwo[łl]uj|Wykonawc|Dnia\b)[A-ZŁŚŻŹĆ][\wąćęłńóśźż]+(?:[ -][A-ZŁŚŻŹĆ][\wąćęłńóśźż]+){0,2}),?[ \t]*(?:dnia[ \t]+|dn\.[ \t]*)?(?:\d{4}-\d{2}-\d{2}|\d{1,2}(?:[.\-/]\d{1,2}[.\-/]\d{4}|[ \t]+\w+[ \t]+\d{4}))(?![^\n]*\n[ \t]*(?:r\.\s?pr\.|adw\.|radca\s|adwokat|apl\.|\(?podpis|za[łl][ąa]cz|w\s+imieniu|za\s+odwo))'
           flagi: [m]
+          w: pierwsza_strona
+        - regex: '\A(?:[^\n]*\n){0,3}?[ \t]*(?P<v>(?!Zamawiaj|Odwo[łl]uj|Wykonawc|Dnia\b)[A-ZŁŚŻŹĆ][\wąćęłńóśźż]+(?:[ -][A-ZŁŚŻŹĆ][\wąćęłńóśźż]+){0,2}),?[ \t]*(?:dnia[ \t]+)?[a-ząćęłńóśźż]+ego(?:[ \t]+[a-ząćęłńóśźż]+ego)?[ \t]+[a-ząćęłńóśźż]+[ \t]+\d{4}'
           w: pierwsza_strona
   Odwolujacy:
     lista:
-      w: odwolujacy
+      w: [odwolujacy_lider_pozycja, odwolujacy_lider, odwolujacy, odwolujacy_po_adresacie]   # konsorcjum: referencja UZP ma tylko lidera (pełnomocnika konsorcjum)
     element:
       krs:
-        metody: [{regex: 'KRS[:\s]*(?P<v>\d{10})'}]
+        metody: [{regex: 'KRS[:\s\-–]*(?:nr\.?\s*|pod\s+(?:numerem|nr\.?)\s*)?(?P<v>\d{10}|\d{6,9}(?![\d-]))'}]
+        normalizuj: [krs]   # zapis bez zer wiodących -> 10 cyfr
       nazwa:
         metody:
+          # przedsiębiorca jednoosobowy: „w imieniu Pawła Lisa prowadzącego działalność gospodarczą pod firmą X” -> X
+          - regex: 'pod\s+firm[ąa]\s+(?P<v>[\s\S]{3,120})$'
+            w: zdanie_w_imieniu
           - calosc: true
             w: zdanie_w_imieniu
+          - regex: '\A\s*(?P<v>[^\n]{3,200}?)[ \t]*\((?:lider|pe[łl]nomocnik)\w*[ \t]+konsorcjum\w*\)[ \t]*$'   # pozycja lidera bez dopisku
+            flagi: [i, m]
           - regex: '(?m)^[ \t]*(?P<v>\S[^\n]+)\n[ \t]*(?:ul\.|al\.|pl\.|os\.)\s'
+          - regex: '\A\s*(?:\d{1,2}[.)]\s*)?(?P<v>[^\n,]{3,}?),[ \t]*(?:(?:ul|al|pl|os)\.|(?i:plac|aleja|rynek|osiedle)\b|\d{2}-\d{3}\b)'   # nazwa i adres w linii
           - regex: '\A\s*(?P<v>[^\n]+)'
         normalizuj: [jedna_linia]
       nip:
-        metody: [{regex: 'NIP[:\s]*(?P<v>\d{3}-?\d{3}-?\d{2}-?\d{2}|\d{10})'}]
+        metody: [{regex: '(?:NIP|numer\w*\s+identyfikacji\s+podatkowej(?:\s*\(NIP\))?)[:\s\-–]*(?:nr\s*)?(?:PL[ \t]?)?(?P<v>\d{3}-?\s?\d{3}-?\s?\d{2}-?\s?\d{2}|\d{3}-?\s?\d{2}-?\s?\d{2}-?\s?\d{3}|\d{10})\b'}]
         normalizuj: [cyfry]
       regon:
-        metody: [{regex: 'REGON[:\s]*(?P<v>\d{9}(?:\d{5})?)'}]
+        metody: [{regex: 'REGON[:\s\-–]*(?:nr\s*)?(?P<v>\d{9}(?:\d{5})?\b|\d{2,7}[ \t]*\n[ \t]*\d{2,7}\b)'}]
+        normalizuj: [regon]   # także złamany między liniami
       przez-pelnomocnika:
+        # „reprezentowany przez Prezesa Zarządu …” / „przez komplementariusza …” to organ, nie pełnomocnik
         metody:
-          - jesli: 'reprezentowan\w*\s+przez|pe[łl]nomocnik'
+          - jesli: 'reprezentowan\w*\s+przez(?!\s*:?\s*(?:pana\s+|pani\s+)?(?:prezes\w*|wiceprezes\w*|cz[łl]on\w*\s+zarz|zarz[aą]d\w*|komplementariusz\w*|wsp[oó]lnik\w*|prokurent\w*|w[łl]a[śs]ciciel\w*|burmistrz\w*|w[oó]jt\w*|dyrektor\w*|kierownik\w*|rektor\w*|starost\w*)\b)|pe[łl]nomocnik|w\s+imieniu\s+któr\w+\s+dzia[łl]a|dzia[łl]aj[aą]c\w*\s+przez\s+(?:r\.\s?pr|radc|adw|apl)'
             to: 1
-          - jesli: 'reprezentowan\w*\s+przez|pe[łl]nomocnik|radc\w+\s+prawn|adwokat'
+          - jesli: 'reprezentowan\w*\s+przez(?!\s*:?\s*(?:pana\s+|pani\s+)?(?:prezes\w*|wiceprezes\w*|cz[łl]on\w*\s+zarz|zarz[aą]d\w*|komplementariusz\w*|wsp[oó]lnik\w*|prokurent\w*|w[łl]a[śs]ciciel\w*|burmistrz\w*|w[oó]jt\w*|dyrektor\w*|kierownik\w*|rektor\w*|starost\w*)\b)|pe[łl]nomocnik|radc\w+\s+prawn|adwokat'
             w: naglowek_odwolujacego
             to: 1
             inaczej: 0
@@ -139,39 +325,98 @@ wynik:
       pelnomocnik:
         imie_nazwisko:
           metody:
-            - regex: '\A\s*(?P<v>[^,\n]+)'
-              w: [pelnomocnik, pelnomocnik_naglowek]
-          normalizuj: [bez_tytulu_zawodowego]
+            - regex: '\A\s*(?:radc[ęy]\s+prawn(?:ego|emu)|adwokat(?:a|owi)|aplikant(?:a|owi)\s+\w+)\s+(?P<v>[^,\n]+)'
+              w: [pelnomocnik, pelnomocnik_blok, pelnomocnik_naglowek]
+              normalizuj: [mianownik_zalezny]
+            # „reprezentowany przez adw. Szymona Dęba”: skrót tytułu po „przez”, nazwisko w bierniku (forma zależna)
+            - regex: '(?:przez|dzia[łl]aj[aą]c\w*\s+przez)\s*:?\s*(?:pe[łl]nomocnik\w*\s*)?(?:r\.\s?pr\.|adw\.|apl\.\s?(?:adw|radc)\.?|mec\.)[ \t]*(?P<v>[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+(?:-[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+)?[ \t]+[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+(?:-[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+)?)'
+              w: [naglowek_odwolujacego]
+              normalizuj: [mianownik_zalezny]
+            - regex: '\A\s*(?:(?:r\.\s?pr\.|adw\.|radca\s+prawny|adwokat|apl\.\s?\w+\.?)[ \t]*\n\s*)?(?P<v>[^,\n]+)'   # tytuł w linii nad nazwiskiem
+              w: [pelnomocnik, pelnomocnik_blok, pelnomocnik_naglowek]
+            # zapasy bez etykiety reprezentacji: linia z tytułem zawodowym w bloku odwołującego, potem podpis pod pismem
+            - regex: '\A[ \t]*(?i:radca[ \t]+prawny|radczyni[ \t]+prawna|r\.[ \t]?pr\.|adwokat|adw\.|apl\.[ \t]?(?:adw|radc)\.?|aplikant[ \t]+\w+|mec\.)[ \t]+(?P<v>[^\n,:]{4,60})$'
+              flagi: [m]
+              w: [po_pelnomocniku, po_pelnomocniku_blok]
+            # etykieta „reprezentowany przez pełnomocnika:” nieczytelna (OCR, pieczęć): pierwsza linia bloku odwołującego
+            # w postaci „<tytuł zawodowy> Imię Nazwisko” (mianownik, sama w linii)
+            - regex: '^[ \t]*(?i:r\.\s?pr\.?|adw\.?|radca\s+prawny|adwokat|apl\.\s?(?:adw|radc)\.?|mec\.)[ \t]+(?P<v>[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+(?:-[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+)?[ \t]+[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+(?:-[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+)?)[ \t]*$'
+              flagi: [m]
+            - calosc: true
+              w: [podpis_pelnomocnika]   # nie „Dokument podpisany przez …”: pismo bez pełnomocnika podpisuje zarząd
+            - llm: 'Jak się nazywa pełnomocnik reprezentujący odwołującego (imię i nazwisko osoby, bez tytułu zawodowego)?'
+              w: [pelnomocnik, pelnomocnik_blok, pelnomocnik_naglowek]
+              max_znakow: 800
+          normalizuj: [bez_tytulu_zawodowego, mianownik, osoba]
         nazwa:
           metody:
-            - regex: 'adres\s+do\s+korespondencji\s*:?\s*(?P<v>.+?),\s*(?:ul\.|al\.|pl\.|os\.)'
+            - regex: 'a?dres\s+do\s+(?:korespondenc\w{1,3}|dor[eę]cze[ńn])\s*:?\s*(?P<v>.+?)(?:,|\n)\s*(?:ul\.|al\.|pl\.|os\.)'
               flagi: [i, s]
+            - regex: 'adres\s+do\s+(?:korespondencji|dor[eę]cze[ńn])\s*:?\s*(?P<v>.+?)(?:,|\n)\s*(?:ul\.|al\.|pl\.|os\.)'
+              flagi: [i, s]
+              w: [odwolujacy_caly]
+            - regex: 'adres\s+do\s+(?:korespondencji|dor[eę]cze[ńn])\s*:?\s*(?P<v>.+?)(?:,|\n)\s*(?:ul\.|al\.|pl\.|os\.)'
+              flagi: [i, s]
+              w: [pelnomocnik_naglowek]   # tabela stron: blok odwołującego bywa pusty, pełnomocnik w nagłówku pisma
+            # kancelaria w liniach pod nazwiskiem pełnomocnika (blok bez przecinków): do e-maila, adresu albo kodu
+            - regex: '\A[^\n]*\n[ \t]*(?P<v>[^\n,]*(?:kancelari\w*|wsp[oó]lnic\w*|adwokack\w*|radc[oó]w\s+prawnych|radcowie\s+prawni|spółk\w+\s+partnersk\w*|partnerzy|sp\.\s?p\.)[^\n,]*(?:\n(?![ \t]*(?:e-?mail|tel|ul\.|al\.|pl\.|os\.|\d{2}-\d{3}|Zamawiaj))[ \t]*[^\n,]{1,40})?)[ \t]*\n'
+              flagi: [i]
+              w: [pelnomocnik]
+            # „…, Kancelaria⏎Adwokacka X, ul. …”: słowo „Kancelaria” na końcu linii, reszta nazwy w następnej
+            - regex: '(?:^|,)[ \t]*(?P<v>Kancelari\w*[ \t]*\n[ \t]*[^,\n]{3,80}?)\s*,\s*(?:ul\.|al\.|pl\.|os\.)'
+              flagi: [m]
+              w: [pelnomocnik, pelnomocnik_blok, pelnomocnik_naglowek]
+            # kancelaria bez etykiety: fragment między przecinkami ze słowem rodzajowym, przed adresem
+            - regex: '(?:^|[,\n])\s*(?P<v>[^,\n]*?(?:kancelari\w*|wsp[oó]lnic\w*|adwokack\w*|radc[oó]w\s+prawnych|radcowie\s+prawni|spółk\w+\s+partnersk\w*|partnerzy|sp\.\s?p\.)[^,\n]*?)\s*,\s*(?:ul\.|al\.|pl\.|os\.)'
+              flagi: [i]
+              w: [pelnomocnik, pelnomocnik_blok, pelnomocnik_naglowek]
+            # etykieta „adres do korespondencji” nieczytelna: linia ze słowem rodzajowym kancelarii, a pod nią linia adresu
+            - regex: '^[ \t]*(?P<v>[^\n,:]*(?:kancelari\w*|wsp[oó]lnic\w*|adwokack\w*|radc[oó]w\s+prawnych|radcowie\s+prawni|spółk\w+\s+partnersk\w*|partnerzy|sp\.\s?p\.)[^\n,:]*)\n[ \t]*(?:ul\.|al\.|pl\.|os\.)[ \t]'
+              flagi: [i, m]
+              w: [pelnomocnik]
+            - calosc: true           # zapas: linia z nazwą kancelarii, pod którą stoi adres
+              w: [kancelaria_w_bloku, kancelaria_po_pelnomocniku, kancelaria_po_pelnomocniku_blok]
           normalizuj: [jedna_linia]
         mail:
           metody:
-            - regex: 'adres\s+do\s+korespondencji(?P<v>.*)'
+            - regex: 'adres\s+do\s+(?:korespondencji|dor[eę]cze[ńn])(?P<v>.*)'
               flagi: [i, s]
+            - regex: 'adres\s+do\s+(?:korespondencji|dor[eę]cze[ńn])(?P<v>.*)'
+              flagi: [i, s]
+              w: [odwolujacy_caly]
+            # e-mail pełnomocnika: od „reprezentowany przez …” dalej (e-mail firmy przed reprezentacją nie jest jego)
             - calosc: true
+              w: [pelnomocnik, pelnomocnik_blok, pelnomocnik_naglowek]
+            - calosc: true   # zapas: pierwszy e-mail po linii pełnomocnika z tytułem zawodowym (etykiety nieczytelne)
+              w: [po_pelnomocniku, po_pelnomocniku_blok]
           normalizuj: [email]
   Zamawiajacy:
     lista:
       w: zamawiajacy
       rozdziel: '(?m)^[ \t]*\d\)\s*'
-      wymagaj: 'KRS|NIP|REGON'
+      wymagaj: 'KRS|NIP|REGON|ul\.|al\.|pl\.|\d{2}-\d{3}'   # zamawiający często bez identyfikatorów: wystarczy adres
       tylko_gdy_wiele: [prowadzacy_postepowanie]
     element:
       krs:
-        metody: [{regex: 'KRS[:\s]*(?P<v>\d{10})'}]
+        metody: [{regex: 'KRS[:\s\-–]*(?:nr\.?\s*|pod\s+(?:numerem|nr\.?)\s*)?(?P<v>\d{10}|\d{6,9}(?![\d-]))'}]
+        normalizuj: [krs]   # zapis bez zer wiodących -> 10 cyfr
       nazwa:
         metody:
+          # nazwa od początku bloku do linii adresu (także złamana na dwie linie)
+          - regex: '\A\s*(?P<v>[^\n:]+(?:\n(?![ \t]*(?:ul\.|al\.|pl\.|os\.|KRS|NIP|REGON|\d))[^\n:]+)?)\n[ \t]*(?:ul\.|al\.|pl\.|os\.)\s'
           - regex: '(?m)^[ \t]*(?P<v>\S[^\n]+)\n[ \t]*(?:ul\.|al\.|pl\.|os\.)\s'
+          # nazwa i adres w jednej linii: „Powiat X, ul. …”, „Gmina Y, Plac Ratuszowy 1”, „…, 00-001 Miasto”
+          - regex: '\A\s*(?:\d{1,2}[.)]\s*)?(?P<v>[^\n,]{3,}?(?:\n(?![ \t]*(?:ul|al|pl|os)\.|[ \t]*(?i:plac|aleja|rynek|skwer|osiedle)\b)[^\n,\d]{3,}?)?),[ \t]*(?:(?:ul|al|pl|os)\.|(?i:plac|aleja|rynek|skwer|osiedle)\b|\d{2}-\d{3}\b)'   # także złamana na 2 linie (druga bez cyfr i bez adresu)
           - regex: '\A\s*(?P<v>[^\n]+)'
+          - llm: 'Jaka jest pełna nazwa zamawiającego (instytucji, która prowadzi postępowanie o udzielenie zamówienia)?'
+            w: pierwsza_strona
         normalizuj: [jedna_linia]
       nip:
-        metody: [{regex: 'NIP[:\s]*(?P<v>\d{3}-?\d{3}-?\d{2}-?\d{2}|\d{10})'}]
+        metody: [{regex: '(?:NIP|numer\w*\s+identyfikacji\s+podatkowej(?:\s*\(NIP\))?)[:\s\-–]*(?:nr\s*)?(?:PL[ \t]?)?(?P<v>\d{3}-?\s?\d{3}-?\s?\d{2}-?\s?\d{2}|\d{3}-?\s?\d{2}-?\s?\d{2}-?\s?\d{3}|\d{10})\b'}]
         normalizuj: [cyfry]
       regon:
-        metody: [{regex: 'REGON[:\s]*(?P<v>\d{9}(?:\d{5})?)'}]
+        metody: [{regex: 'REGON[:\s\-–]*(?:nr\s*)?(?P<v>\d{9}(?:\d{5})?\b|\d{2,7}[ \t]*\n[ \t]*\d{2,7}\b)'}]
+        normalizuj: [regon]   # także złamany między liniami
       prowadzacy_postepowanie:
         metody:
           - jesli: 'lider|prowadz[aą]c\w*\s+post[eę]powanie'
@@ -186,20 +431,145 @@ wynik:
       normalizuj: [bzp]
     numer_postepowania:
       metody:
-        - regex: '(?:nr|numer)\s+referencyjn\w*(?:\s+sprawy)?\s*:?\s*(?P<v>[^\s,;]+)'
-        - regex: '(?:znak\s+sprawy|numer\s+post[eę]powania|nr\s+post[eę]powania|post[eę]powanie\s+nr|nr\s+sprawy)\s*:?\s*(?P<v>[^\s,;)]+)'
+        # „numer referencyjny nadany przez Zamawiającego: X” — numer ma cyfrę, słowo bez cyfry nim nie jest
+        - regex: '(?:nr|numer)\s+referencyjn\w*(?:\s+(?:sprawy|post[eę]powania|zam[oó]wienia))?(?:\s+nadan\w+\s+przez\s+zamawiaj\w+)?\s*:?\s*(?P<v>(?=[^\s,;]*\d)[^\s,;]+)'
+        - regex: '(?:znak\s+(?:sprawy|post[eę]powania)|oznaczenie\s+(?:sprawy|post[eę]powania)|numer\s+post[eę]powania|nr\s+post[eę]powania|post[eę]powanie\s+nr|nr\s+sprawy)\s*:?\s*(?P<v>[^\s,;)]+)'
+        - regex: '(?:numer\s+sprawy|nr\s+ref\.|sygnatur\w+\s+(?:sprawy|post[eę]powania))\s*:?\s*(?P<v>(?=[^\s,;)]*\d)[^\s,;)]+)'
+          w: [dotyczy, pierwsza_strona]
+        # samo „znak:” w linii „dotyczy: …, znak: ABC/ZP/1/2026” (wartość musi mieć cyfrę i ukośnik albo kropkę)
+        - regex: '\bznak\s*:\s*(?P<v>(?=[^\s,;)]*\d)(?=[^\s,;)]*[/.])[^\s,;)]+)'
+          w: [dotyczy, pierwsza_strona]
+        - llm: 'Jaki jest numer referencyjny (znak sprawy) postępowania nadany przez zamawiającego? Podaj sam numer.'
+          w: pierwsza_strona
       normalizuj: [bez_kropki]
     numer_ted:
       metody:
         - w: [dotyczy, pierwsza_strona]
           regex: '(?:TED|Dzienniku\s+Urz[eę]dowym|Dz\.\s*Urz\.)[\s\S]{0,80}?(?P<v>\d{4}\s*/\s*S\s*\d{1,3}\s*-\s*\d{5,7}|\d{5,7}-\d{4})'
           flagi: [i, s]
+        - w: [dotyczy]
+          regex: ['(?P<v>\b20\d{2}\s*/\s*S\s*\d{1,3}\s*-\s*\d{5,7}\b)', 'og[łl]oszeni\w*\s+(?:o\s+zam[oó]wieniu\s+)?(?:nr|numer)\s*(?P<v>\d{5,7}-20\d{2})\b']
       normalizuj: [ted]
     tytul:
       metody:
-        - regex: 'pn\.?\s*[„"](?P<v>[^”"]+)[”"]'
+        # tytuł z nazwą własną w cudzysłowie w środku: „Dostawa systemu „Alfa” dla urzędu” (pary „…” wewnątrz tytułu)
+        - regex: '(?:pn\.?|pt\.|pod\s+nazw[aą]|nazwa\s+zam[oó]wienia)\s*:?\s*„(?P<v>(?:[^”"«»„]|„[^”"„\n]{1,80}”)+)”'
           flagi: [i, s]
-        - regex: '[„"](?P<v>[^”"]{15,})[”"]'
+        - regex: '(?:pn\.?|pt\.|pod\s+nazw[aą]|nazwa\s+zam[oó]wienia\s*:?)\s*[„"«»‘](?P<v>[^”"«»‘’]+)[”"«»’]'
+          flagi: [i, s]
+        - regex: '[„"«](?P<v>[^”"«»]{15,})[”"»]'
           flagi: [s]
           w: dotyczy
+        - llm: 'Jaki jest tytuł (nazwa) zamówienia publicznego, którego dotyczy odwołanie? Podaj sam tytuł bez cudzysłowów.'
+          w: pierwsza_strona
       normalizuj: [jedna_linia]
+
+# Wariant szeroki (eksperyment B): model zwraca pola miękkie odwołania, reguły są drugim kandydatem i walidatorem.
+# Kandydat modelu wygrywa tylko, gdy stoi w tekście (osoby: rdzeń, zmiana wyłącznie końcówek); inaczej reguła.
+# KRS, NIP, REGON, BZP, TED, daty i powód wyłącznie z reguł.
+model_szeroki:
+  wlaczony: true          # true = model pierwszym kandydatem pól miękkich (jedna linijka)
+  polecenie: |
+    Wypisz dane z odwołania do Prezesa KIO jako JSON dokładnie w tym formacie:
+    {"Odwolujacy": [{"nazwa": null, "pelnomocnik": {"imie_nazwisko": null, "nazwa": null, "mail": null}}],
+     "Zamawiajacy": [{"nazwa": null}],
+     "ZamowieniePubliczne": {"tytul": null}}
+    Zasady:
+    - Odwolujacy: wykonawca wnoszący odwołanie; w konsorcjum tylko lider (pełnomocnik konsorcjum);
+    - nazwa: pełna nazwa znak w znak z dokumentu;
+    - pelnomocnik: osoba reprezentująca odwołującego (imię i nazwisko bez tytułu, w mianowniku; jeśli w dokumencie
+      jest w mianowniku, przepisz bez zmian), nazwa kancelarii i adres e-mail do korespondencji, null gdy brak;
+    - Zamawiajacy: każdy zamawiający, nazwa znak w znak;
+    - tytul: tytuł (nazwa) zamówienia znak w znak, bez cudzysłowów.
+  # tylko po tych słowach tuż przed nazwiskiem model może zmienić końcówki (Z22 pkt 3), inaczej dosłownie
+  formy_zalezne: 'radc(?:y|ę|zyni)\s+prawn(?:emu|ego|ej)|adwokat(?:owi|a|ce)|aplikant(?:owi|a|ce)\s+\w+|\bPan(?:u|a|i|ią)|pe[łl]nomocnik(?:iem|ami|ów)\s*:?|\bdla'
+  pola:
+    Odwolujacy[].nazwa: doslownie
+    Odwolujacy[].pelnomocnik.imie_nazwisko: osoba
+    Odwolujacy[].pelnomocnik.nazwa: doslownie
+    Odwolujacy[].pelnomocnik.mail: doslownie
+    Zamawiajacy[].nazwa: doslownie
+    ZamowieniePubliczne.tytul: doslownie
+
+# Router pism (przełącznik `router_prozy` w config/aplikacja.yaml, zmienna ROUTER_PROZY=0/1): pismo w układzie
+# generatora UZP idzie regułami bez zmian; długie pismo bez żadnego stałego zdania szablonu UZP = pismo prozą
+# (kancelaria): czynność, jej opis i dzień rozstrzyga jedno zapytanie do modelu (router.py). TED w piśmie prozą: zapis
+# „RRRR/S NNN-NNNNNN” i „NNNNNN-RRRR” przy TED / Dzienniku Urzędowym UE / Dz.U. S / OJ S, gdy reguły pola nic nie dały.
+router_prozy:
+  slownik: powody
+  wykrywacz:
+    min_stron: 4
+    min_znakow: 8000
+    okno: 30000
+    # stałe zdania szablonów generatora UZP (wystarczy jedno); porównanie po „szkielecie” tekstu (bez polskich
+    # znaków i interpunkcji, i/j/l jako jedna litera), więc odporne na typowe błędy OCR
+    uklad_uzp:
+      - 'w oparciu o załączone pełnomocnictwo'
+      - 'kopia odwołania została przekazana zamawiającemu'
+      - 'zaskarżonym czynnościom i zaniechaniom'
+      - 'w wymaganej wysokości został uiszczony'
+      - 'może ponieść szkodę polegającą na utracie'
+      - 'informacja o zaskarżonej czynności została'
+      - 'odwołanie wnoszone jest w terminie przewidzianym'
+      - 'adres do korespondencji kancelaria'
+      - 'czynności i zaniechań zamawiającego działając w'
+      - 'o której zamawiający poinformował'
+  ted:
+    okno: 15000
+    wyklucz_przed: 'inn\w*\s+(?:podmiot|zamawiaj|post[eę]powa)'
+    wzorce:
+      - '(?P<rok>(?:19|20)\d{2})\s*/\s*S\s*\d{1,3}\s*[-–]\s*(?P<nr>\d{5,7})\b'
+      - '(?:TED|Dzienni\w*\s+Urz[eę]dow\w*|Dz\.\s*U\.?\s*(?:UE\s*)?S\b|Dz\.\s*Urz\.|\bOJ\s*S\b|publikacji\s+og[łl]oszeni\w*|og[łl]oszeni\w*\s+(?:o\s+zam[oó]wieniu\s+)?(?:nr|numer))(?:(?!BZP)[^;]){0,160}?(?<![\d/-])(?P<nr>\d{5,7})\s*[-–]\s*(?P<rok>(?:19|20)\d{2})\b'
+  czynnosc:
+    nadpisuj: true
+    max_tokens: 200
+    # dzień czynności od modelu: nie po dacie pisma i najwyżej tyle dni przed nią (termin na odwołanie to 5–15 dni;
+    # wyżej: data ustawy, dawnego ogłoszenia, wniosku) -> inaczej zostaje dzień z reguł
+    max_dni_przed_pismem: 30
+    fragment:
+      od:
+        - 'wnosz[eę]\s+(?:niniejszym\s+)?odwo[łl]anie'
+        - 'odwo[łl]anie\s+(?:od|wobec|na)\b'
+        - 'zaskar[żz]am\b'
+        - 'zarzucam\b'
+        - '(?m)^\s*(?:Zarzut\s*(?:nr\s*)?1\b|1\.\s*Zarzut)'
+        # pismo w 3. osobie („Odwołujący wnosi odwołanie / zaskarża / zarzuca Zamawiającemu”) i OCR „odwo1anie”
+        - 'wnosi\w*\s+(?:niniejszym\s+)?odwo[łl1]anie'
+        - 'wnosz[eę]\s+(?:niniejszym\s+)?odwo1anie'
+        - 'zaskar[żz]a\w*\s+(?:czynno|zaniecha)'
+        - 'zarzuca\w*\s+zamawiaj'
+      okno_startu: 20000
+      przed: 300
+      max_znakow: 3500
+      min_znakow: 1200
+      do: ['(?m)^\s*(?:[IVX]+\.\s*)?UZASADNIENIE\b']
+      zdanie_daty: '(?:\d{1,2}[.\-/]\d{1,2}[.\-/]\d{4}|\d{4}-\d{2}-\d{2}|\d{1,2}\s+(?:stycznia|lutego|marca|kwietnia|maja|czerwca|lipca|sierpnia|wrze[śs]nia|pa[źz]dziernika|listopada|grudnia))[\s\S]{0,200}?(?:zamie[śs]ci|opublikowa|udost[eę]pni|przekaza|poinformowa|zawiadomi|wybra|odrzuci|wykluczy|uniewa[żz]ni|zmieni|zmodyfikowa|udzieli\w*\s+odpowied|wyja[śs]ni)|(?:zamie[śs]ci|opublikowa|udost[eę]pni|przekaza|poinformowa|zawiadomi|wybra|odrzuci|wykluczy|uniewa[żz]ni|zmieni|zmodyfikowa|odpowied|wyja[śs]ni)[\s\S]{0,120}?(?:\d{1,2}[.\-/]\d{1,2}[.\-/]\d{4}|\d{4}-\d{2}-\d{2}|\d{1,2}\s+(?:stycznia|lutego|marca|kwietnia|maja|czerwca|lipca|sierpnia|wrze[śs]nia|pa[źz]dziernika|listopada|grudnia))'
+      max_zdan: 8
+    polecenie: |
+      ZASKARŻONA CZYNNOŚĆ. Powyżej jest fragment odwołania do Prezesa KIO (żądania i pierwsze zarzuty) oraz zdania
+      z datami z dalszej części pisma. Ustal czynność albo zaniechanie zamawiającego, której dotyczy PIERWSZY zarzut
+      odwołania (wyłącznie pierwszy zarzut, nie kolejne), i wybierz dokładnie jeden kod z listy zamkniętej:
+      1 – Decyzja o odrzuceniu oferty: zamawiający odrzucił ofertę (zwykle odwołującego).
+      2 – Ogłoszenie wyboru oferty: wybór oferty najkorzystniejszej, ocena ofert, przyznanie punktów innemu wykonawcy.
+      3 – Decyzja o wykluczeniu wykonawcy: zamawiający wykluczył wykonawcę.
+      4 – Publikacja specyfikacji warunków zamówienia (SWZ): pierwszy zarzut dotyczy treści SWZ lub ogłoszenia o zamówieniu
+          w pierwotnym brzmieniu, np. warunków udziału w postępowaniu, kryteriów oceny ofert, wymagań wobec wykonawców.
+      5 – Modyfikacja treści SWZ: pierwszy zarzut dotyczy zmiany SWZ lub ogłoszenia dokonanej przez zamawiającego w toku
+          postępowania (zmienione postanowienia, zmieniony termin składania ofert).
+      6 – Odpowiedzi/wyjaśnienia do SWZ: pierwszy zarzut dotyczy treści ustalonej odpowiedzią zamawiającego na pytania
+          lub wnioski wykonawców o wyjaśnienie treści SWZ.
+      7 – Zaniechanie odrzucenia oferty: zamawiający nie odrzucił oferty innego wykonawcy, choć powinien.
+      8 – Zaniechanie wykluczenia wykonawcy: zamawiający nie wykluczył wykonawcy, choć powinien.
+      9 – Decyzja o unieważnieniu postępowania: zamawiający unieważnił postępowanie (lub jego część).
+      10 – Zaniechanie unieważnienia postępowania: zamawiający nie unieważnił postępowania, choć powinien.
+      11 – Opis przedmiotu zamówienia (OPZ): pierwszy zarzut dotyczy opisu przedmiotu zamówienia (wymagań technicznych,
+          parametrów, sposobu opisania przedmiotu zamówienia).
+      12 – Projektowane postanowienia umowy: pierwszy zarzut dotyczy postanowień umowy (kar umownych, waloryzacji,
+          odstąpienia, wzoru umowy).
+      Podaj też dzień dokonania tej czynności przepisany dosłownie z tekstu, tak jak jest zapisany: dzień publikacji
+      ogłoszenia albo zamieszczenia SWZ (przy kodach 4, 11, 12), dzień zmiany SWZ (5), udzielenia odpowiedzi (6),
+      przekazania wykonawcom zawiadomienia albo informacji o wyborze, odrzuceniu, wykluczeniu, unieważnieniu (1–3, 7–10).
+      Taka data zwykle stoi w zdaniu o publikacji ogłoszenia, o przekazaniu informacji albo o zachowaniu terminu na
+      wniesienie odwołania. Nie podawaj daty ustawy, daty pisma odwołania ani daty wniosku wykonawcy. null, gdy w tekście
+      tej daty nie ma. Gdy żaden kod nie pasuje: null.
+      Format: {"kod": <numer z listy albo null>, "data": "<data dosłownie z tekstu>" albo null}

@@ -33,9 +33,17 @@ def test_dokument_obcy_pusty_wynik():
 
 
 def test_dlugie_pole_podobienstwo():
-    assert _l({"x": {"nazwa": "Kancelaria Adwokacka Kowalski"}},
-              {"x": {"nazwa": "Kancelaria Adwokacka Kowalsky"}}).tp == 1
+    # długie wg UZP (ścieżki): pełnomocnik.nazwa, przelew tytul, nazwy stron, tytuł zamówienia
+    assert _l({"Odwolujacy": [{"pelnomocnik": {"nazwa": "Kancelaria Adwokacka Kowalski"}}]},
+              {"Odwolujacy": [{"pelnomocnik": {"nazwa": "Kancelaria Adwokacka Kowalsky"}}]}).tp == 1
     assert _l({"x": {"nip": "1234567890"}}, {"x": {"nip": "1234567891"}}).tp == 0
+
+
+def test_czynnosc_opis_i_nazwa_mocodawcy_dokladnie():
+    assert _l({"OdwolanieKIO": {"czynnosc_opis": "Odpowiedzi i wyjaśnienia do SWZ"}},
+              {"OdwolanieKIO": {"czynnosc_opis": "Odpowiedzi/wyjaśnienia do SWZ"}}).tp == 0
+    assert _l({"mocodawca": [{"data": {"nazwa": "Alfa Serwis sp. z o.o."}}]},
+              {"mocodawca": [{"data": {"nazwa": "Alfa Serwis Sp. z o.o"}}]}).tp == 0
 
 
 def test_normalizacja_liczb_i_cudzyslowow():
@@ -67,3 +75,12 @@ def test_zera_wiodace_krs():
 def test_tryb_scisly_rozroznia_wielkosc_liter():
     assert _l({"x": "Abc"}, {"x": "abc"}).tp == 1
     assert _l({"x": "Abc"}, {"x": "abc"}, scisle=True).tp == 0
+
+
+def test_tryb_scisly_zly_typ_to_fp():
+    assert _l({"kwota": 100.0}, {"kwota": "100"}).tp == 1                 # tryb luźny: jak dotąd
+    l = _l({"kwota": 100.0}, {"kwota": "100"}, scisle=True)
+    assert (l.tp, l.fp, l.fn) == (0, 1, 0)
+    l = _l({"krs": "54588"}, {"krs": 54588}, scisle=True)
+    assert (l.tp, l.fp) == (0, 1)
+    assert _l({"kwota": 100}, {"kwota": 100.0}, scisle=True).tp == 1     # int i float to ta sama liczba

@@ -1,0 +1,38 @@
+# Model językowy (open-weights) za adresem zgodnym z OpenAI API. Opcjonalny: bez niego działają same reguły.
+# Model uzupełnia tylko pola, których reguły z config/klasy/*.yaml nie wyciągnęły albo których walidator nie przyjął
+# (metoda `llm:` na końcu listy metod pola). Odpowiedź musi występować w tekście dokumentu, inaczej jest odrzucana.
+#
+# Przełącznik jedną linijką: api | lokalny | brak   (nadpisuje zmienna MODEL_TRYB)
+# api bez klucza (LLM_API_KEY) = same reguły, bez prób połączenia.
+tryb: api
+
+api:            # Scaleway Generative APIs (Francja, region Paryż); klucz tylko z .env
+  base_url: ${LLM_BASE_URL:-https://api.scaleway.ai/v1}
+  # Gemma 4 26B-A4B (Google, Apache-2.0, 26 mld parametrów MoE): wybrany w porównaniu 7 modeli
+  # (docs/WYNIKI.md); OCR skanów: ocr_model niżej
+  model: ${LLM_MODEL:-gemma-4-26b-a4b-it}
+  api_key: ${LLM_API_KEY}
+
+lokalny:        # serwer na tej maszynie zgodny z OpenAI API (np. Ollama); z kontenera: host.docker.internal
+  base_url: ${OLLAMA_URL:-http://127.0.0.1:11434}/v1
+  model: ${LOKALNY_MODEL:-qwen2.5:7b}
+  api_key: ""
+
+# Model do OCR stron bez warstwy tekstowej (skany), ten sam dostawca i klucz; zmienna OCR_MODEL nadpisuje.
+# Domyślnie Mistral Small 3.2 (najwyższe F1 na skanach), a gdy nie zwróci tekstu, Gemma. Zmienna OCR_MODEL nadpisuje listę.
+# Na 30 skanach UZP: Mistral 0,984 / 0,965, Gemma 0,972 / 0,940 (strojone / nieoglądane; docs/WYNIKI.md).
+# Kilka po przecinku = kolejne próby, gdy poprzedni nie zwróci tekstu.
+ocr_model: ${OCR_MODEL:-mistral-small-3.2-24b-instruct-2506,gemma-4-26b-a4b-it}
+
+ustawienia:
+  temperatura: 0
+  timeout_s: 35          # Z32: budżet 45 min na 150 PDF (README UZP); dalej przycinany do pozostałego budżetu MAKS_CZAS_S
+  max_znakow: 6000      # ile tekstu dokumentu trafia do modelu przy jednym pytaniu
+  max_bledow: 3         # po tylu błędach model milknie do końca dokumentu; HTTP 401/403/404 albo 3 kolejne błędy: do końca przebiegu
+  max_tokens: 400       # długość odpowiedzi (odpowiedzi są krótkie: wartość pola albo BRAK)
+
+# Dodatkowe parametry zapytania dla modeli (dopasowanie po początku nazwy, najdłuższe wygrywa).
+# Modele rozumujące bez tego zużywają limit tokenów na „myślenie” i nie podają odpowiedzi.
+parametry_modeli:
+  "": {reasoning_effort: none}          # domyślnie: bez rozumowania (szybciej, krócej, taniej)
+  gpt-oss: {reasoning_effort: low}      # gpt-oss nie obsługuje „none”

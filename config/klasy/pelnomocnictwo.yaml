@@ -5,39 +5,107 @@ opis: Pełnomocnictwo do reprezentowania wykonawcy przed KIO
 
 rozpoznanie:
   prog: 4
+  # Dowód pozytywny (Z37): formuła umocowania + pełnomocnik + zakres (reprezentowanie, KIO, postępowanie)
+  wymagane:
+    - ['udziel\w*', 'ustanawia\w*', 'upowa[żz]ni\w*', 'umocow\w*', 'P\s?E\s?[ŁL]\s?N\s?O\s?M\s?O\s?C\s?N\s?I\s?C\s?T\s?W\s?O']
+    - ['pe[łl]nomocni\w*', 'upowa[żz]nion\w*', 'adwokat\w*', 'radc\w*\s+prawn', '\badw\.', '\br\.\s?pr\.', '\b(?:Pan[aiu]?|Pani[ąa]?)\s+[A-ZŁŚŻŹĆ]', 'PESEL']
+    - ['reprezent\w*', 'Krajow\w*\s+Izb\w*', '\bKIO\b', 'post[eę]powani\w*', 'odwo[łl]a\w*', 'zast[eę]pow\w*', 'dzia[łl]ania\s+w\s+imieniu']
+  tytul:
+    'PE[ŁL]NOMOCNICTWO': 5
+    'UPOWA[ŻZ]NIENIE': 4
   slowa:
-    'p\s?e\s?[łl]\s?n\s?o\s?m\s?o\s?c\s?n\s?i\s?c\s?t\s?w\s?o': 3
     'mocodaw': 2
-    'udziel\w*\s+pe[łl]nomocnictwa|ustanawiam\s+pe[łl]nomocnik': 2
+    'udziel\w*\s+(?:niniejszym\s+)?(?:\w+\s+){0,3}pe[łl]nomocnictw|ustanawia\w*\s+(?:\w+\s+){0,2}pe[łl]nomocnik': 3
     'pe[łl]nomocnictwo\s+przyjmuj': 1
-    'umocowan': 1
-    'upowa[żz]niam': 2
+    'umocowan|umocowuj': 2
+    'upowa[żz]niam|upowa[żz]nia\s': 2
+    'do\s+reprezentowania': 1
+    'pe[łl]nomocnictwo\s+(?:obejmuje|udzielone|jest)': 1
+    # zestaw pól pełnomocnictwa: pełnomocnik, zakres umocowania, podpis mocodawcy
+    'pe[łl]nomocnik\w*\s*:|na\s+pe[łl]nomocnika|jako\s+pe[łl]nomocnik|^\s*pe[łl]nomocni(?:k|cy)\b': 2
+    'nr\s+wpisu|wpisan\w*\s+na\s+list[eę]\s+(?:adwokat|radc)|izb\w*\s+(?:adwokack|radc)': 1
+    'reprezentowania\s+(?:\w+\s+){0,4}(?:przed|w\s+post[eę]powaniu)|post[eę]powani\w+\s+odwo[łl]awcz': 1
+    'substytuc|do\s+wniesienia\s+odwo[łl]ania|do\s+dokonywania\s+czynno[śs]ci': 2
+    'podpis\w*\s+(?:mocodawc|os[oó]b\s+uprawnion|za\s+mocodawc)|w\s+imieniu\s+mocodawc': 1
+  tytul_ujemne:
+    # ogłoszenia TED/BZP, decyzje i inne dokumenty urzędowe
+    'OG[ŁL]OSZENIEO(?:ZAM[ÓO]WIENIU|WYNIKU|ZMIANIE|UDZIELENIU)|OJS\d|DZ\.?U\.?S|BIULETYNZAM[ÓO]WIE[ŃN]PUBLICZNYCH|DECYZJA|BROSZURA|KOMUNIKAT': 8
+    'ODWO[ŁL]ANIE(?!SI[ĘE]|NA|M)': 6
+    'POTWIERDZENIE': 6
+    'WEZWANIE|WYROK|INFORMACJAO|OG[ŁL]OSZENIE': 8
 
 # Fragmenty tekstu, w których szukają pola.
+# Usuwane przed ekstrakcją.
+oczysc:
+  # pieczątka wpływu wtrącona w tekst skanu („WPŁYNĘŁO / dnia 21.08.2026 L.dz. 199”, podpis kierownika)
+  - '(?m)^[ \t]*WP[ŁL]YN[ĘE][ŁL]O\b[^\n]*\n?(?:[ \t]*dnia\s+\d{1,2}[./-]\d{1,2}[./-]\d{4}[^\n]*\n?)?'
+  - '(?m)^[ \t]*Podpis\s+Kierownika[^\n]*\n?'
+
 sekcje:
-  mocodawcy:        # od początku do zdania o udzieleniu pełnomocnictwa
-    od: '\A'
+  mocodawcy:        # od początku (bez linii tytułu i daty) do zdania o udzieleniu pełnomocnictwa
+    od: '\A(?:[ \t]*(?:[^\n]*\d{1,2}[.\s/-]\s?(?:\d{1,2}|[a-ząćęłńóśźż]+)[.\s/-]\s?\d{4}[^\n]*|P\s?E\s?[ŁL]\s?N\s?O\s?M\s?O\s?C\s?N\s?I\s?C\s?T\s?W\s?O[^\n]*|UPOWA[ŻZ]NIENIE[^\n]*)?[ \t]*\n)*'
     do:
       - 'udziel\w*\s+pe[łl]nomocnictwa'
-      - 'ustanawiam'
-      - 'upowa[żz]niam'
+      - 'ustanawia\w*'
+      - 'upowa[żz]nia\w*'
+      - 'umocowuj\w*'
+      - '(?m)^[ \t]*dane\s+pe[łl]nomocnik'
       - '§\s*2'
       - '(?m)^\s*pe[łl]nomocni(?:k|cy)\b'
   podpisy_mocodawcy:   # blok podpisów: "Mocodawca:" albo "W imieniu X:" (konsorcjum: kilka bloków)
-    od: '(?m)^[ \t]*(?:w\s+imieniu[^\n]*:|mocodawca:?|za\s+mocodawc\w+:?)[ \t]*$'
+    od: '(?m)^[ \t]*(?:w\s+imieniu[^\n]*:|(?:mocodawca:?|za\s+mocodawc\w+:?)(?=[ \t]*\n\s*(?:(?:\.|…|_){3,}|podpisano|[^\n,]{3,60},[ \t]*(?:prezes|wiceprezes|cz[łl]on\w*|prokurent\w*|wsp[oó]lnik\w*|w[łl]a[śs]ciciel\w*|dyrektor\w*|kierownik\w*|przewodnicz\w*|komplementariusz\w*|burmistrz\w*|w[oó]jt\w*|starost\w*|przedsi[eę]biorc\w*|osoba\s+upowa[żz]nion\w*)))|za\s+[^\n]{3,120}(?:\n[^\n:]{1,80})?:|za\s+[^\n]{3,120}?(?:\n[^\n]{0,80}?)?(?:sp\.\s*[jkp]\.|sp\.\s*z\s*o\.\s*o\.|S\.A\.|spółk\w+[^\n]*))[ \t]*$'
     flagi: [i, m]
     wiele: true
-    do: ['(?m)^[ \t]*w\s+imieniu[^\n]*:[ \t]*$', 'przyjmuj']
+    scal_powtorzone: true   # ten sam nagłówek „Za Firma” przy kolejnych podpisach = jeden blok
+    do: ['(?m)^[ \t]*(?:(?:w\s+imieniu|za\s)[^\n]*:|za\s+[^\n]{3,120}?(?:\n[^\n]{0,80}?)?(?:sp\.\s*[jkp]\.|sp\.\s*z\s*o\.\s*o\.|S\.A\.|spółk\w+[^\n]*))[ \t]*$', 'przyjmuj']
   podpisy_bez_etykiety:  # pierwszy blok kropek do "przyjmuję"
-    od: '\.{5,}'
+    od: '(?:\.|…|_){3,}'
     z_naglowkiem: true
     do: ['przyjmuj']
+  lista_pelnomocnikow:   # nazwiska w osobnych liniach pod „udziela pełnomocnictwa:”
+    od: 'udziel\w*\s+(?:niniejszym\s+)?pe[łl]nomocnictwa\s*:[ \t]*\n'
+    do: ['(?m)^\s*(?:do|w\s+celu|w\s+zakresie)\s']
+    max_znakow: 600
+  wyliczenie_pelnomocnikow:   # wyliczenie po „udziela/ustanawia/upoważnia…:” zaczynające się od imienia i nazwiska bez tytułu
+    od: '(?i:\budziela(?:j[aą]|my|m)?\s+pe[łl]nomocnictwa|\bustanawia(?:j[aą]|my|m)?\s+pe[łl]nomocnik(?:iem|ami)|\bupowa[żz]nia(?:j[aą]|my|m)?|\bumocowuj(?:[eę]|[aą]|emy))(?:\s*:\s*|[ \t]*[;.,]?[ \t]*\n\s*)(?=(?:(?:\d{1,2}|[lI|])[ \t]?[.)]\s*)?[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+(?:-[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+)?\s+[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+(?:-[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+)?[ \t]*(?:$|[,;(]|[–—*~=-]|(?i:oraz|i|do)\b))'
+    flagi: [m]
+    do: ['^[ \t]*(?i:do|w\s+zakresie|w\s+sprawie|w\s+post[eę]powaniu|przed)\s', '(?i:\bdo\s+(?:reprezentowania|wyst[eę]powania|dzia[łl]ania|zast[eę]powania))']
+    max_znakow: 600
+  reprezentacja:   # klauzula w opisie mocodawcy: „reprezentowana przez: Imię Nazwisko – Funkcja[, Imię Nazwisko – Funkcja]”
+    od: '(?i:reprezentowan\w*\s+prz\w{2})\s*:?\s*(?=[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+(?:-[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+)?\s+[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+(?:-[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+)?\s*[,–—=~-]?\s*(?i:prezes|wiceprezes|cz[łl]on\w*|prokurent\w*|wsp[oó]lnik\w*|w[łl]a[śs]ciciel\w*|dyrektor\w*|kierownik\w*|przewodnicz\w*|komplementariusz\w*|burmistrz\w*|w[oó]jt\w*|starost\w*|przedsi[eę]biorc\w*|osoba\s+upowa[żz]nion\w*))'
+    flagi: [m]
+    do: ['\((?i:dalej)', '(?i:niniejszym)', ';']
+    max_znakow: 300
+  reprezentacja_zalezna:   # „reprezentowana przez Jana Nowaka – Prezesa” / „przez Prezesa Zarządu Pana Jana Nowaka” (bez dwukropka: forma zależna)
+    od: '(?i:reprezentowan\w*|dzia[łl]aj[aą]c\w*)\s+(?i:przez)(?![ \t]*:)'
+    z_naglowkiem: true
+    flagi: [m]
+    do: ['\((?i:dalej)', '(?i:niniejszym)', ';', '(?i:\budziel\w*\s+pe[łl]nomocnictw|\bustanawia|\bupowa[żz]nia)']
+    max_znakow: 300
+  po_udzieleniu:   # tekst od zdania o udzieleniu pełnomocnictwa (pełnomocnicy stoją za nim, reprezentant mocodawcy przed nim)
+    od: '\budziel\w*\s+(?:niniejszym\s+)?(?:\w+\s+){0,3}pe[łl]nomocnictw|\bustanawia\w*|\bupowa[żz]nia\w*|\bumocowuj\w*'
+  podpisy_ukosnik:   # „/-/ Imię Nazwisko (funkcja)” — podpis w formie elektronicznej kopii
+    od: '(?m)^[ \t]*/-/'
+    z_naglowkiem: true
+    do: ['przyjmuj']
+  podpisy_formularz:  # „Podpis osoby uprawnionej do reprezentacji: X”, „Dokument podpisany … przez: X”
+    od: '(?m)^[ \t]*(?:dokument\s+)?podpis\w*'
+    z_naglowkiem: true
+    do: ['przyjmuj']
+
+# Konsorcjum: podpisujący trafia do mocodawcy, w którego opisie pada jego nazwisko („reprezentowana przez: …”).
+przypisanie:
+  lista: mocodawca
+  pole_nazwy: data.nazwa
+  podlista: podpisujacy
+  pole: imie_nazwisko
+  do: 'udziel\w*\s+(?:niniejszym\s+)?pe[łl]nomocnictw|ustanawia\w*\s+pe[łl]nomocnik'
 
 wynik:
   mocodawca:
     lista:
       w: mocodawcy
-      rozdziel: '(?:^|\s)\d\)\s'     # konsorcjum: "1) Firma A ...; 2) Firma B ..."
+      rozdziel: '(?:^|\s)\d\)\s|\s+oraz\s+(?=[A-ZŁŚŻŹĆ„"][^,]{2,80},\s*(?:ul\.|al\.|pl\.|os\.))|(?i:lider|partner|cz[łl]onek|uczestnik)\w*[ \t]+konsorcjum\w*[ \t]*:|;\s+(?!KRS|NIP|REGON|PESEL|ul\.)(?=[A-ZŁŚŻŹĆ„"])|§\s*\d+\.\d+\s|(?:^|(?<=\n))[ \t]*Mocodawca[ \t]*\d*[ \t]*:?[ \t]*(?=\n)'   # konsorcjum: "1) A; 2) B" albo kolejne bloki „Mocodawca”
       wymagaj: 'KRS|NIP|REGON|PESEL'
     element:
       data:
@@ -45,58 +113,194 @@ wynik:
           metody:
             - regex: 'ni[żz]ej\s+podpisan[ya]\s+(?P<v>[^,]+?),\s+prowadz[aą]c'
               flagi: [i, s]
+            - regex: '\A(?![\s\S]*\bKRS\b)(?=[\s\S]*\bNIP\b)[\s\S]*?w\s+imieniu\s+[^\n(]*?\b(?P<v>[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+(?:-[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+)?[ \t]+[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+(?:-[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+)?)\s*\(dalej'
+              flagi: [m]
+            - regex: '(?:^|\s)Ja,?[ \t]+(?P<v>[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+(?:-[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+)?[ \t]+[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+(?:-[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+)?)\s*,'
+              flagi: [m]
+            # działalność jednoosobowa: imię i nazwisko na końcu firmy, gdy jest NIP, a nie ma KRS
+            - regex: '\A(?![\s\S]*\bKRS\b)(?=[\s\S]*\bNIP\b)[\s\S]*?(?:[Ff]irm\w*|[Nn]azwa|[Mm]ocodawca|MOCODAWCA)\s*:?\s*[„"]?[^\n„"]*?\b(?P<v>[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+(?:-[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+)?[ \t]+[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+(?:-[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+)?)[”"]?[ \t]*(?:\n|,|\()'
+              flagi: [m]
+            # JDG bez etykiety: pierwsze „Imię Nazwisko” na końcu linii albo przed nawiasem (tylko NIP bez KRS)
+            - regex: '\A(?![\s\S]*\bKRS\b)(?=[\s\S]*\bNIP\b)[\s\S]*?\b(?P<v>[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+(?:-[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+)?[ \t]+[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+(?:-[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+)?)[ \t]*(?:\n|\()'
+              flagi: [m]
           normalizuj: [jedna_linia]
         krs:
           metody:
-            - regex: 'KRS[:\s]*(?:pod\s+numerem\s+)?(?P<v>\d{10})'
+            - regex: 'KRS[:\s\-–]*(?:nr\.?\s*|pod\s+(?:numerem|nr\.?)\s*)?(?P<v>\d{10})'
         nazwa:
           metody:
+            - regex: '(?m)^[ \t]*(?:nazwa|firma)(?:[ \t]+mocodawcy)?[ \t]*:[ \t]*(?P<v>[^\n]+)'
+            - regex: 'mocodawca\s*:\s*(?P<v>[^,\n(]+?)\s*(?:,\s*(?:ul\.|al\.|pl\.|os\.|NIP|KRS)|\()'
             - regex: 'mocodawc[ąa]\s+jest\s+(?P<v>.+?),\s*(?:ul\.|al\.|pl\.|os\.)'
               flagi: [i, s]
-            - regex: 'pod\s+firm[ąa]\s+(?P<v>.+?),\s*(?:ul\.|al\.|pl\.|os\.)'
+            # „prowadzący działalność pod firmą X, NIP …”: firma kończy się na adresie albo identyfikatorze
+            - regex: 'pod\s+firm[ąa]\s+(?P<v>.+?)(?:,\s*(?:ul\.|al\.|pl\.|os\.|(?:NIP|REGON|KRS)\b)|\s+z\s+siedzib|\s*\()'
               flagi: [i, s]
-            - regex: 'w\s+imieniu\s+(?P<v>.+?)\s*\(dalej'
+            - regex: 'w\s+imieniu\s+(?P<v>.+?)(?:\s+z\s+siedzib\w*|,\s*(?:ul\.|al\.|pl\.|KRS|NIP|REGON)|\s*\(dalej)'
               flagi: [i, s]
             - regex: 'reprezentacji\s+(?P<v>.+?)\s*\((?:KRS|NIP)'
               flagi: [i, s]
             - regex: '(?m)^\s*mocodawca[ \t]+(?P<v>\S[^\n]+)'
             - regex: '(?m)^\s*mocodawca[ \t]*\n\s*(?P<v>\S[^\n]+)'
+            # nazwa zaczyna akapit zaraz pod tytułem albo element wyliczenia i może być złamana na 2–3 linie
+            - regex: '^[ \t]*(?:P\s?E\s?[ŁL]\s?N\s?O\s?M\s?O\s?C\s?N\s?I\s?C\s?T\s?W\s?O|UPOWA[ŻZ]NIENIE)[^\n]*\n\s*(?P<v>[^\n,:;()]{2,100}(?:\n[^\n,:;()]{1,100}){0,2}?)\s+z\s+siedzib'
+              flagi: [m]
+            - regex: '\A\s*(?P<v>[^\n,:;()]{2,100}(?:\n[^\n,:;()]{1,100}){0,2}?)\s+z\s+siedzib'
+              flagi: [m]
             - regex: '(?m)^\s*(?P<v>\S[^\n]+?)\s+z\s+siedzib'
             - regex: '\A\s*(?P<v>[^,:;\n][^,:;]{2,120}?),\s*(?:ul\.|al\.|pl\.|os\.)'
               flagi: [s]
             - regex: '(?m)^\s*(?P<v>[^\n,:;]+?),\s*(?:ul\.|al\.|pl\.|os\.)'
             - regex: '(?m)^\s*(?P<v>\S[^\n]+)\n\s*(?:ul\.|al\.|pl\.|os\.)\s'
-          normalizuj: [jedna_linia, bez_cudzyslowow]
+            # element wyliczenia bez adresu: „Firma sp. z o.o., KRS …, NIP …”
+            - regex: '\A\s*(?P<v>[^,:;\n][^,:;]{2,120}?),\s*(?:KRS|NIP|REGON)\b'
+          normalizuj: [jedna_linia, bez_cudzyslowow, forma_prawna]   # forma_prawna: „Sp. z 0.0.” z OCR -> „Sp. z o.o.”
         nip:
           metody:
-            - regex: 'NIP[:\s]*(?P<v>\d{3}-?\d{3}-?\d{2}-?\d{2}|\d{10})'
+            - regex: '(?:NIP|numer\w*\s+identyfikacji\s+podatkowej(?:\s*\(NIP\))?)[:\s\-–]*(?:nr\s*)?(?P<v>\d{3}-?\s?\d{3}-?\s?\d{2}-?\s?\d{2}|\d{3}-?\s?\d{2}-?\s?\d{2}-?\s?\d{3}|\d{10})\b'
           normalizuj: [cyfry]
         typ:
           metody:
-            - jesli: 'prowadz\w*\s+dzia[łl]alno|CEIDG|Centraln\w+\s+Ewidencj'
+            - jesli: 'prowadz\w*\s+dzia[łl]alno|CEIDG|Centraln\w+\s+Ewidencj|przedsi[eę]biorc[aą]\b'
               to: osoba_fizyczna
-              inaczej: osoba_prawna
+            - jesli: '\A(?![\s\S]*\bKRS\b)[\s\S]*\bNIP\b'   # NIP bez KRS: spółki zawsze mają KRS
+              to: osoba_fizyczna
+            - stala: osoba_prawna
       podpisujacy:
         lista:
-          w: [podpisy_mocodawcy, podpisy_bez_etykiety]
-          indeks: true
-          regex: '\.{5,}[ \t]*\n(?:[ \t]*\.+[ \t]*\n)?(?:[ \t]*(?:za|w\s+imieniu)\s[^\n]*\n)?\s*(?P<v>[^\n]+)'
+          warianty:
+            # A0) „reprezentowana przez Jana Nowaka – Prezesa Zarządu oraz Annę Kot – Członka” albo „przez Prezesa Zarządu
+            #     Pana Jana Nowaka”: element zaczyna się od słowa łączącego (przez/oraz/i/,), które mówi o formie zależnej
+            - w: reprezentacja_zalezna
+              regex: '(?:\b(?i:przez|oraz)|\bi|,)\s+(?:(?i:prezes\w*|wiceprezes\w*|cz[łl]on\w*|prokurent\w*|wsp[oó]lnik\w*|w[łl]a[śs]ciciel\w*|dyrektor\w*|kierownik\w*|przewodnicz\w*|komplementariusz\w*|burmistrz\w*|w[oó]jt\w*|starost\w*)(?:\s+(?i:zarz[aą]du|spó[łl]ki|firmy))?\s+(?:(?i:pan[aiu]?|pani[ąa])\s+)?[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+(?:-[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+)?\s+[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+(?:-[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+)?|(?:(?i:pan[aiu]?|pani[ąa])\s+)?(?!(?i:prezes|wiceprezes|cz[łl]on|prokurent|wsp[oó]lnik|w[łl]a[śs]ciciel|dyrektor|kierownik|przewodnicz|komplementariusz|burmistrz|w[oó]jt|starost|zarz[aą]d|pan)\w*\b)[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+(?:-[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+)?\s+[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+(?:-[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+)?(?=\s*[,–—-]\s*(?i:prezes|wiceprezes|cz[łl]on|prokurent|wsp[oó]lnik|w[łl]a[śs]ciciel|dyrektor|kierownik|przewodnicz|komplementariusz|burmistrz|w[oó]jt|starost)))'
+            # A) klauzula „reprezentowana przez: Imię Nazwisko – Funkcja, …” w opisie TEGO mocodawcy
+            - w: reprezentacja
+              regex: '(?<![\w-])(?!(?i:prezes|wiceprezes|cz[łl]on\w*|prokurent\w*|wsp[oó]lnik\w*|w[łl]a[śs]ciciel\w*|dyrektor\w*|kierownik\w*|przewodnicz\w*|komplementariusz\w*|burmistrz\w*|w[oó]jt\w*|starost\w*|przedsi[eę]biorc\w*|osoba\s+upowa[żz]nion\w*)\b)[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+(?:-[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+)?\s+[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+(?:-[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+)?(?=\s*[,–—=~-]?\s*(?i:prezes|wiceprezes|cz[łl]on\w*|prokurent\w*|wsp[oó]lnik\w*|w[łl]a[śs]ciciel\w*|dyrektor\w*|kierownik\w*|przewodnicz\w*|komplementariusz\w*|burmistrz\w*|w[oó]jt\w*|starost\w*|przedsi[eę]biorc\w*|osoba\s+upowa[żz]nion\w*))'
+            # B) blok podpisów: „Podpis …: X”, „Dokument podpisany przez X”, kropki i nazwisko, „X – Funkcja”, …
+            - w: [podpisy_mocodawcy, podpisy_ukosnik, podpisy_bez_etykiety, podpisy_formularz]
+              indeks: true
+              regex: '(?i:(?:podpis\w*[^\n:]*?(?:przez|reprezentacji|uprawnion\w*)[^\n:]*|podpisano)[ \t]*:|dokument\s+podpisany\s+(?:\w+\s+){0,4}?przez[ \t]*:?)[ \t]*\n?[ \t]*([^\n]+)|(?<=/-/)[ \t]*[^\n]+|(?:\.|…|_){3,}[ \t]*\n(?:[ \t]*(?:\.|…|_)+[ \t]*\n)?(?:[ \t]*(?i:za|w\s+imieniu)\s[^\n]*\n)?(?:[ \t]*(?i:podpisano)[ \t]*:?[ \t]*\n)?\s*(?P<v>(?i:(?:prezes|wiceprezes|cz[łl]on\w*|prokurent\w*|wsp[oó]lnik\w*|w[łl]a[śs]ciciel\w*|dyrektor\w*|kierownik\w*|przewodnicz\w*|komplementariusz\w*|burmistrz\w*|w[oó]jt\w*|starost\w*|przedsi[eę]biorc\w*|osoba\s+upowa[żz]nion\w*)(?:\s+(?:zarz[aą]du|samoistn\w*|spó[łl]ki|firmy|\w+ow\w+))*)[ \t]*[:\-–]?[ \t]*\n[^\n]+|[^\n]+)|(?:^[ \t]*|(?<=\s))([A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+(?:-[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+)?[ \t]+[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+(?:-[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+)?[ \t]*[,–—-][ \t]*(?i:prezes|wiceprezes|cz[łl]on\w*|prokurent\w*|wsp[oó]lnik\w*|w[łl]a[śs]ciciel\w*|dyrektor\w*|kierownik\w*|przewodnicz\w*|komplementariusz\w*|burmistrz\w*|w[oó]jt\w*|starost\w*|przedsi[eę]biorc\w*|osoba\s+upowa[żz]nion\w*)(?:[ \t]+(?i:zarz[aą]du|samoistn\w*))?)|^[ \t]*(?i:prezes|wiceprezes|cz[łl]on\w*|prokurent\w*|wsp[oó]lnik\w*|w[łl]a[śs]ciciel\w*|dyrektor\w*|kierownik\w*|przewodnicz\w*|komplementariusz\w*|burmistrz\w*|w[oó]jt\w*|starost\w*|przedsi[eę]biorc\w*|osoba\s+upowa[żz]nion\w*)(?:[ \t]+(?i:zarz[aą]du|samoistn\w*))?[ \t]*:[ \t]*[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+(?:-[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+)?[ \t]+[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+(?:-[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+)?|^[ \t]*[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+(?:-[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+)?[ \t]+[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+(?:-[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+)?(?=[ \t]*\n[ \t]*(?i:prezes|wiceprezes|cz[łl]on\w*|prokurent\w*|wsp[oó]lnik\w*|w[łl]a[śs]ciciel\w*|dyrektor\w*|kierownik\w*|przewodnicz\w*|komplementariusz\w*|burmistrz\w*|w[oó]jt\w*|starost\w*|przedsi[eę]biorc\w*|osoba\s+upowa[żz]nion\w*))'
+            # C) jednoosobowa działalność bez nazwiska pod podpisem („(podpis właściciela)”): podpisuje sam przedsiębiorca
+            - regex: '\A(?![\s\S]*\bKRS\b)(?=[\s\S]*\bNIP\b)[\s\S]*?(?P<v>[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+(?:-[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+)?[ \t]+[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+(?:-[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+)?)[ \t]*,?\s*prowadz\w*\s+dzia[łl]alno'
+          flagi: [m]
+          # artefakty stopki i OCR to nie osoby; „(podpis właściciela)” pod kropkami to opis miejsca na podpis
+          wymagaj: '^(?!\s*\(?\s*(?i:signature|sygnatura|dokument|podpis|data|strona)\b)'
           klucz: imie_nazwisko
         element:
           imie_nazwisko:
             metody:
+              # element z wariantu A0 („przez Jana Nowaka”, „oraz Annę Kot”, „przez Prezesa Zarządu Pana Jana Nowaka”): forma zależna
+              - regex: '^(?:przez|oraz|i|,)\s+(?:(?:prezes|wiceprezes|cz[łl]on|prokurent|wsp[oó]lnik|w[łl]a[śs]ciciel|dyrektor|kierownik|przewodnicz|komplementariusz|burmistrz|w[oó]jt|starost)\w*(?:\s+(?:zarz[aą]du|spó[łl]ki|firmy))?\s+)?(?:(?:pan[aiu]?|pani[ąa])\s+)?(?P<v>\S+\s+\S+)$'
+                flagi: [i]
+                normalizuj: [mianownik_zalezny]
+              # „Jan Nowak – Prezes Zarządu”: funkcja po myślniku albo przecinku jest odcinana (lista funkcji tutaj)
+              - regex: '^\s*(?P<v>.+?)\s*(?:[–—,-]|\()\s*(?:prezes|wiceprezes|cz[łl]on\w*|prokurent\w*|wsp[oó]lnik\w*|w[łl]a[śs]ciciel\w*|dyrektor\w*|kierownik\w*|pe[łl]nomocnik\w*|przewodnicz\w*|komplementariusz\w*|burmistrz\w*|w[oó]jt\w*|starost\w*|zarz[aą]d\w*|osoba\s+upowa[żz]nion\w*)\b'
+                flagi: [i, s]
+              # funkcja przed nazwiskiem: „Prezes Zarządu Jan Nowak” albo funkcja w linii nad nazwiskiem
+              - regex: '^\s*(?:prezes|wiceprezes|cz[łl]on\w*|prokurent\w*|wsp[oó]lnik\w*|w[łl]a[śs]ciciel\w*|dyrektor\w*|kierownik\w*|przewodnicz\w*|komplementariusz\w*|burmistrz\w*|w[oó]jt\w*|starost\w*|osoba\s+upowa[żz]nion\w*)(?:\s+(?:zarz[aą]du|samoistn\w*|spó[łl]ki|firmy|\w+ow\w+))*\s*[:\-–,]?\s*(?P<v>[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+(?:-[A-ZŁŚŻŹĆ]\w+)?\s+[A-ZŁŚŻŹĆ][^\s,()]+)'
+                flagi: [i]
+              - regex: '^\s*\((?P<v>[^)]+)\)\s*$'   # „(Stanisław Kot)” pod podpisem
               - calosc: true
-            normalizuj: [bez_tytulu_zawodowego]
+            normalizuj: [bez_tytulu_zawodowego, tytulowe, mianownik]
   pelnomocnicy:
     lista:
-      regex: '(?:adw\.|adwokat|r\.\s?pr\.|radc[ay]\s+prawn\w*|apl\.\s?(?:adw|radc)\.?)\s+(?P<v>[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+(?:-[A-ZŁŚŻŹĆ]\w+)?\s+[A-ZŁŚŻŹĆ][\wąćęłńóśźż-]+(?:,\s*PESEL[:\s]*\d{11})?)'
-      flagi: [s]
+      warianty:
+        # A) wyliczenie po „udziela pełnomocnictwa:”: imię i nazwisko na początku pozycji, tytuł i PESEL po nazwisku albo wcale
+        - w: wyliczenie_pelnomocnikow
+          regex: '(?:^[ \t]*|(?<=\boraz\s)|(?<=\bi\s)|(?<=[,;]\s))(?:(?:(?:\d{1,2}|[lI|])[ \t]?[.)]|[-–—•*])\s*)?(?!(?i:kancelari|izb|okr[eę]gow|sp[oó][łl]k|biur|zesp[oó][łl])\w*\b)(?P<v>[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+(?:-[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+)?\s+[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+(?:-[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+)?(?=[ \t]*(?:$|[,;(]|[–—*~=-]|(?i:oraz|i|do)\b))(?:(?:(?!\boraz\b)(?:[^;\n)]|\n(?![ \t]*(?:(?:\d{1,2}[.)]|[-–—•*])\s*)?[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+(?:-[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+)?\s+[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+(?:-[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+)?)))*?PESEL[:;.\s]*(?:nr\s*)?\d{11})?)'
+          flagi: [m]
+        # B) tytuł PRZED nazwiskiem (forma tytułu mówi o przypadku; po tytule bywa „Panu/Pani”) + nazwiska w liniach pod listą.
+        #    Najpierw tekst od „udziela pełnomocnictwa” (przed nim stoi reprezentant mocodawcy, np. „przez Prezesa Pana X”),
+        #    a gdy tam nic nie ma, cały dokument.
+        - w: [po_udzieleniu, null]
+          regex: '(?P<v>(?:(?i:(?:adw\.|adwokat\w*|r\.\s?pr\.|radc[ayęeąo]\w*\s+prawn\w*|radczy\w*\s+prawn\w*|apl\.\s?(?:adw|radc)\.?|aplikant\w*\s+(?:adwokack|radcowsk)\w*|mec\.)(?:[ \t]+(?:panu|pana|pani[ąa]?)(?=[ \t]))?|panu|pana|pani[ąa]?)(?:[ \t]+|[ \t]*\n[ \t]*(?=[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+[ \t]+[A-ZŁŚŻŹĆ]))|(?i:imi[eę]\s+i\s+nazwisko(?:\s+pe[łl]nomocnika)?)[ \t]*:[ \t]*)[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+(?:-[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+)?(?:[ \t]+|[ \t]*\n[ \t]*)[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+(?:-[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+)?(?:\s*[,(]?\s*(?:nr\s+)?PESEL[:\s]*(?:nr\s*)?\d{11}\)?)?)'
+          flagi: [s]
+          dodatkowo:
+            w: lista_pelnomocnikow
+            regex: '^[ \t]*(?:\d+[.)][ \t]*)?(?P<v>[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+(?:-[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+)?[ \t]+[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+(?:-[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+)?(?:[ \t]*\([^)\n]*\)|[ \t]*[–—,-][^\n]*)?(?:\n[ \t]*\([^)\n]*PESEL[^)\n]*\))?)(?=\n|$)|(?:^|(?<=\s))([A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+(?:-[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+)?[ \t]+[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+(?:-[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+)?[ \t]*\((?i:adwokat|radc|aplikant)[^)\n]*\)?)'
+            flagi: [m]
       klucz: imie_nazwisko
     element:
       imie_nazwisko:
         metody:
-          - regex: '^(?P<v>\S+\s+[^\s,]+)'
+          # tytuł z formą grzecznościową („radcy prawnemu Panu X”, „adwokat Pani X”): forma zależna
+          - regex: '^(?:(?:adwokat\w*|adw\.|radc\w*\s+prawn\w*|radczy\w*\s+prawn\w*|aplikant\w*\s+\w+|mec\.)\s+)?(?:panu|pana|pani|panią)\s+(?P<v>[A-ZŁŚŻŹĆ]\S+\s+[^\s,]+)'
+            flagi: [i]
+            normalizuj: [mianownik_zalezny]
+          - regex: '^(?:adwokat(?:owi|a)|radc(?:y|ę|zie)\s+prawn(?:emu|ego)|radczy(?:ni|ń)\s+prawn(?:ej|ą)|aplikant(?:owi|a)\s+\w+|panu|pana)\s+(?P<v>[A-ZŁŚŻŹĆ]\S+\s+[^\s,]+)'
+            flagi: [i]
+            normalizuj: [mianownik_zalezny]
+          - regex: '(?!(?:Pan|Pani|Panią|Panu|Pana|Imię)\b)(?P<v>[A-ZŁŚŻŹĆ][a-ząćęłńóśźż]+(?:-[A-ZŁŚŻŹĆ]\w+)?\s+[A-ZŁŚŻŹĆ][^\s,;]+)'
+            flagi: [m]    # bez „i”: imię i nazwisko z wielkiej litery, bez form grzecznościowych
+            normalizuj: [mianownik]
         normalizuj: [jedna_linia]
       pesel:
         metody:
-          - regex: 'PESEL[:\s]*(?P<v>\d{11})'
+          - regex: 'PESEL[:;.\s]*(?:nr\s*)?(?P<v>\d{11})'
+
+# Arbitraż model ↔ reguły (jedno wywołanie modelu na dokument). Model zwraca cały JSON; wartości z 5 pól poniżej
+# (KRS, NIP i PESEL tylko z reguł; lista z modelu w całości albo wcale; w osobach model zmienia tylko końcówki)
+# zastępują wynik reguł, jeśli przejdą walidację w tekście (osoba: rdzeń członów; nazwa: podobieństwo ≥ 0,85;
+# cyfry: dosłownie; slownik: z listy). Inne pola i odrzucone wartości zostają z reguł.
+model_dokumentu:
+  wlaczony: true          # true = model poprawia nazwy i osoby (zmienna MODEL_ARBITRAZ=1/0 nadpisuje)
+  polecenie: |
+    Wypisz dane z pełnomocnictwa jako JSON dokładnie w tym formacie:
+    {"mocodawca": [{"data": {"imie_nazwisko": null, "krs": null, "nazwa": null, "nip": null, "typ": "osoba_prawna"},
+                    "podpisujacy": [{"imie_nazwisko": null}]}],
+     "pelnomocnicy": [{"imie_nazwisko": null, "pesel": null}]}
+    Zasady:
+    - mocodawca: każdy wykonawca udzielający pełnomocnictwa (w konsorcjum: lider i wszyscy partnerzy, w kolejności z dokumentu);
+    - typ: "osoba_fizyczna" dla osoby prowadzącej działalność gospodarczą (CEIDG), inaczej "osoba_prawna";
+    - imie_nazwisko w data: tylko dla osoby_fizycznej (imię i nazwisko przedsiębiorcy), inaczej null;
+    - nazwa: pełna nazwa firmy dosłownie z dokumentu; krs, nip: same cyfry;
+    - podpisujacy: osoby podpisujące w imieniu danego mocodawcy (bez funkcji);
+    - pelnomocnicy: osoby, którym udzielono pełnomocnictwa, z numerem PESEL, jeśli jest.
+  pola:
+    mocodawca[].data.nazwa: nazwa
+    mocodawca[].data.typ: slownik
+    mocodawca[].data.imie_nazwisko: osoba
+    mocodawca[].podpisujacy[].imie_nazwisko: osoba
+    pelnomocnicy[].imie_nazwisko: osoba
+  dozwolone:
+    mocodawca[].data.typ: [osoba_prawna, osoba_fizyczna]
+
+# Wariant szeroki (eksperyment B): model zwraca wszystkie pola miękkie, reguły są drugim kandydatem i walidatorem.
+# Kandydat modelu wygrywa tylko, gdy stoi w tekście (osoby: rdzeń, zmiana wyłącznie końcówek); inaczej reguła.
+# KRS, NIP, PESEL wyłącznie z reguł. Gdy włączony, zastępuje `model_dokumentu` (dalej jedno wywołanie).
+model_szeroki:
+  wlaczony: true          # true = model pierwszym kandydatem pól miękkich (jedna linijka)
+  polecenie: |
+    Wypisz dane z pełnomocnictwa jako JSON dokładnie w tym formacie:
+    {"mocodawca": [{"data": {"imie_nazwisko": null, "nazwa": null, "typ": "osoba_prawna"},
+                    "podpisujacy": [{"imie_nazwisko": null}]}],
+     "pelnomocnicy": [{"imie_nazwisko": null}]}
+    Zasady:
+    - mocodawca: każdy wykonawca udzielający pełnomocnictwa (w konsorcjum: lider i wszyscy partnerzy, w kolejności z dokumentu);
+    - typ: "osoba_fizyczna" dla osoby prowadzącej działalność gospodarczą (CEIDG), inaczej "osoba_prawna";
+    - imie_nazwisko w data: tylko dla osoby_fizycznej (imię i nazwisko przedsiębiorcy), inaczej null;
+    - nazwa: pełna nazwa firmy znak w znak z dokumentu;
+    - podpisujacy: osoby podpisujące pełnomocnictwo w imieniu danego mocodawcy (bez funkcji);
+    - pelnomocnicy: osoby, którym udzielono pełnomocnictwa.
+    Imiona i nazwiska w mianowniku; jeśli w dokumencie są już w mianowniku, przepisz je bez zmian.
+  pola:
+    mocodawca[].data.nazwa: doslownie
+    mocodawca[].data.typ: slownik
+    mocodawca[].data.imie_nazwisko: osoba
+    mocodawca[].podpisujacy[].imie_nazwisko: osoba
+    pelnomocnicy[].imie_nazwisko: osoba
+  dozwolone:
+    mocodawca[].data.typ: [osoba_prawna, osoba_fizyczna]
+  # słowa formy zależnej tuż przed nazwiskiem: tylko po nich model może zmienić końcówki (Z22 pkt 3);
+  # po skrótach „r. pr.”, „adw.” i przy mianowniku w tekście wartość musi stać w tekście dosłownie
+  formy_zalezne: 'radc(?:y|ę|zyni)\s+prawn(?:emu|ego|ej)|adwokat(?:owi|a|ce)|aplikant(?:owi|a|ce)\s+\w+|\bPan(?:u|a|i|ią)|pe[łl]nomocnik(?:iem|ami|ów)\s*:?|pe[łl]nomocnictwa\s*(?:dla)?\s*:?|\bdla'
+  listy:
+    mocodawca:
+      dodawaj: true
+      klucz: data.nazwa
+      # brakujące identyfikatory nowego członka konsorcjum: te same reguły, w tekście tuż za jego nazwą
+      identyfikatory:
+        data.krs: 'KRS[:\s\-–]*(?:nr\.?\s*|pod\s+(?:numerem|nr\.?)\s*)?(?P<v>\d{10})'
+        data.nip: '(?:NIP|numer\w*\s+identyfikacji\s+podatkowej(?:\s*\(NIP\))?)[:\s\-–]*(?:nr\s*)?(?P<v>\d{3}-?\s?\d{3}-?\s?\d{2}-?\s?\d{2}|\d{3}-?\s?\d{2}-?\s?\d{2}-?\s?\d{3}|\d{10})\b'
+    mocodawca[].podpisujacy: {dodawaj: true, zastepuj: true, klucz: imie_nazwisko}
+    pelnomocnicy: {dodawaj: true, klucz: imie_nazwisko}

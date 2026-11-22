@@ -1,0 +1,100 @@
+# Odmiana imion i nazwisk do mianownika (pola imie_nazwisko). Używają normalizatory `mianownik` i `mianownik_zalezny`.
+# Reguły końcówek: pierwsza pasująca wygrywa (dłuższe końcówki wyżej). Wyjątki mają pierwszeństwo przed regułami.
+
+# Końcówki, które w mianowniku nie występują: zamieniane zawsze.
+zawsze:
+  - [skiego, ski]
+  - [ckiego, cki]
+  - [dzkiego, dzki]
+  - [skiemu, ski]
+  - [ckiemu, cki]
+  - [dzkiemu, dzki]
+  - [skiej, ska]
+  - [ckiej, cka]
+  - [dzkiej, dzka]
+  - [ską, ska]
+  - [cką, cka]
+  - [dzką, dzka]
+  - [owi, ""]
+  - [ę, a]
+  - [cji, cja]
+
+# Imiona żeńskie w celowniku/dopełniaczu (Annie -> Anna, Agacie -> Agata, Teresie -> Teresa, Monice -> Monika).
+# W mianowniku takie końcówki u imion nie występują, więc reguła działa zawsze dla imienia.
+imie_zenskie_zalezne:
+  - [nie, na]
+  - [cie, ta]
+  - [sie, sa]
+  - [zie, za]
+  - [rze, ra]
+  - [dze, ga]
+  - [wie, wa]
+  - [ce, ka]
+  - [ii, ia]
+  - [ji, ja]
+
+# Imiona żeńskie w dopełniaczu (Laury -> Laura, Olgi -> Olga): tylko gdy nazwisko wskazuje formę zależną kobiety
+imie_zenskie_dopelniacz:
+  - [y, a]
+  - [gi, ga]
+  - [ki, ka]
+
+# Imiona męskie w dopełniaczu/bierniku, tylko w kontekście zależnym (Cezarego -> Cezary, Antoniego -> Antoni);
+# końcowe -a (Jana -> Jan) obcinane, gdy wynik jest na liście imion męskich.
+imie_meskie_zalezne:
+  - [iego, i]
+  - [ego, y]
+
+# Oboczności w nazwiskach męskich po obcięciu końcówki (Dąbka -> Dąbek, Wróbla -> Wróbel, Jelenia -> Jeleń).
+obocznosci:
+  # ę -> ą w sylabie zamkniętej (Gołębia -> Gołąb, Dęba -> Dąb, Zęba -> Ząb)
+  - ["ębi", "ąb"]
+  - ["ę([bdgzw])", "ą\\1"]
+  # -lk, -rk po spółgłosce bez e ruchomego tylko w znanych nazwiskach (wyjątki niżej: Wilka -> Wilk)
+  - ["([bcćdfghjklłmnńprsśtwzźż])k", "\\1ek"]
+  - ["([bcćdfghjklłmnńprsśtwzźż])l", "\\1el"]
+  - ["ni", "ń"]
+
+# Wyjątki (oboczności): forma zależna -> mianownik
+wyjatki:
+  Marka: Marek
+  Ewie: Ewa   # rdzeń krótszy niż 2 litery: reguła końcówki -wie go pomija
+  Jacka: Jacek
+  Pawła: Paweł
+  Pawłowi: Paweł
+  Leszka: Leszek
+  Bartka: Bartek
+  Tomka: Tomek
+  Przemka: Przemek
+  Wojtka: Wojtek
+  Kuby: Kuba
+  Markowi: Marek
+  Jackowi: Jacek
+  Leszkowi: Leszek
+  Bartkowi: Bartek
+  Tomkowi: Tomek
+  Franciszkowi: Franciszek
+  Elżbiecie: Elżbieta
+  Mai: Maja
+  Jerzego: Jerzy
+  Jerzemu: Jerzy
+  Oli: Ola
+  Kozła: Kozioł
+  Kotła: Kocioł
+  Orła: Orzeł
+  Kozłowi: Kozioł
+  Wilka: Wilk
+  Wilkowi: Wilk
+  Wilkiem: Wilk
+  Gołębiowi: Gołąb
+  Dębowi: Dąb
+
+# Imiona męskie (mianownik): końcowe -a jest obcinane tylko, gdy po obcięciu wychodzi imię z tej listy
+# („Jana Nowaka” -> „Jan Nowak”, ale „Olga Bąk” zostaje). Nazwisko traci -a tylko u mężczyzny.
+imiona_meskie: [Adam, Adrian, Albert, Aleksander, Andrzej, Antoni, Arkadiusz, Artur, Bartłomiej, Bartosz, Błażej,
+  Bogdan, Bogusław, Cezary, Damian, Daniel, Dariusz, Dawid, Dominik, Edward, Emil, Eryk, Filip, Franciszek, Fryderyk,
+  Gabriel, Grzegorz, Henryk, Hubert, Igor, Ireneusz, Jacek, Jakub, Jan, Janusz, Jarosław, Jerzy, Józef, Julian, Kacper,
+  Kamil, Karol, Kazimierz, Konrad, Krystian, Krzysztof, Leszek, Łukasz, Maciej, Maksymilian, Marcin, Marek, Marian,
+  Mariusz, Mateusz, Michał, Mikołaj, Mirosław, Norbert, Oskar, Patryk, Paweł, Piotr, Przemysław, Radosław, Rafał,
+  Robert, Roman, Ryszard, Sebastian, Sławomir, Stanisław, Stefan, Szymon, Tadeusz, Tomasz, Wiesław, Wiktor, Witold,
+  Władysław, Włodzimierz, Wojciech, Zbigniew, Zdzisław, Zenon, Zygmunt]

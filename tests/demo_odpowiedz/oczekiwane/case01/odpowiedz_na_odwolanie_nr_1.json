@@ -1,0 +1,15 @@
+{
+  "OdpowiedzNaOdwolanie": {
+    "sygnatura": "KIO 9991/26",
+    "data": "2026-10-12",
+    "wniosek": "oddalenie"
+  },
+  "Zamawiajacy": {
+    "nazwa": "Gmina Miasto Zielonka Dolna",
+    "nip": "9991045125"
+  },
+  "Odwolujacy": {
+    "nazwa": "Budimex-Fikcja Konstrukcje sp. z o.o."
+  },
+  "pelnomocnik": "Agnieszka Wróblewska"
+}

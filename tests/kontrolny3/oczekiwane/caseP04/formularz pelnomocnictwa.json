@@ -1,0 +1,24 @@
+{
+  "mocodawca": [
+    {
+      "data": {
+        "imie_nazwisko": null,
+        "krs": "9991972585",
+        "nazwa": "Biotest Laboratoria sp. z o.o.",
+        "nip": "9994207189",
+        "typ": "osoba_prawna"
+      },
+      "podpisujacy": [
+        {
+          "imie_nazwisko": "Joanna Lis"
+        }
+      ]
+    }
+  ],
+  "pelnomocnicy": [
+    {
+      "imie_nazwisko": "Kamil Dąbek",
+      "pesel": "83040183896"
+    }
+  ]
+}

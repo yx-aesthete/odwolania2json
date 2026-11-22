@@ -1,0 +1,31 @@
+{
+  "mocodawca": [
+    {
+      "data": {
+        "imie_nazwisko": null,
+        "krs": "9992343407",
+        "nazwa": "Agroserwis Mazury sp. z o.o.",
+        "nip": "9994645624",
+        "typ": "osoba_prawna"
+      },
+      "podpisujacy": [
+        {
+          "imie_nazwisko": "Zofia Grabowska"
+        },
+        {
+          "imie_nazwisko": "Jerzy Pietrzyk"
+        }
+      ]
+    }
+  ],
+  "pelnomocnicy": [
+    {
+      "imie_nazwisko": "Łukasz Pawlik",
+      "pesel": null
+    },
+    {
+      "imie_nazwisko": "Halina Sienkiewicz-Wolska",
+      "pesel": null
+    }
+  ]
+}

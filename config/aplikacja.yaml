@@ -1,0 +1,40 @@
+# Ustawienia aplikacji (bez zmiany kodu).
+# Dokument spoza znanych klas: komunikat „nie dopasowano typu” w logu i w podglądzie WWW, a w ./output:
+#   pusty_obiekt — plik .json o tej samej nazwie z zawartością {} (wymóg UZP, domyślnie)
+#   pusty_plik  — plik .json o tej samej nazwie i rozmiarze 0 B
+#   brak_pliku  — żadnego pliku JSON
+# Zmienna OBCY nadpisuje to ustawienie.
+obcy: pusty_obiekt
+
+# Klasy spoza trzech klas UZP (np. config/klasy-demo) są domyślnie wyłączone, żeby nie zmieniać oceny.
+# Włączenie: klasy_dodatkowe: [config/klasy-demo] albo zmienna KLASY_DODATKOWE albo --klasy-dodatkowe <katalog>.
+klasy_dodatkowe: []
+
+# Klasyfikacja typu (sygnały każdej klasy są w config/klasy/<klasa>.yaml, sekcja `rozpoznanie`).
+klasyfikacja:
+  okno: 10000        # znaki od początku dokumentu przeszukiwane przez `slowa` i `ujemne`
+  okno_tytulu: 3000  # tytuł: krótkie linie bez cyfr i dwukropka (WIELKIE albo ≤ 30 znaków) w tych pierwszych znakach + początek dokumentu
+  min_punkty: 3      # mniej = brak sygnałów -> dokument obcy
+  przewaga: 3        # klasa poniżej progu wygrywa, gdy ma tyle punktów przewagi nad drugą
+
+# Siatka modelu: metody `llm` oznaczone `siatka: true` w config/klasy (przelew: data, kwota, tytuł, rachunek odbiorcy;
+# odwołanie: czynność, jej opis i dzień). Model jest pytany tylko, gdy reguły pola nic nie dały, a odpowiedź przechodzi
+# tylko, gdy stoi w dokumencie albo jest pozycją słownika. false = te metody są pomijane (wynik jak bez nich).
+# Zmienna SIATKA_MODELU=0/1 nadpisuje.
+siatka_modelu: true
+
+# OCR stron bez warstwy tekstowej (skany): kolejne silniki, pierwszy, który da tekst, wygrywa.
+#   model     — ten sam model po API (wejście obrazowe), wystarczy pip i klucz w .env
+#   tesseract — program systemowy (jest w obrazie Dockera)
+# Zmienna OCR_SILNIKI (np. "tesseract") nadpisuje; OCR=0 wyłącza OCR.
+ocr: [model, tesseract]
+
+# Te same osoby i firmy w pismach jednej sprawy: gdy wartości różnią się tylko polskimi znakami (błąd OCR skanu),
+# wszędzie wariant z polskimi znakami. Zmienna UJEDNOLICAJ_NAZWY=0/1 nadpisuje.
+ujednolicaj_nazwy: true
+
+# Router pism (config/klasy/odwolanie.yaml, sekcja `router_prozy`): pismo w układzie generatora UZP = reguły bez zmian
+# (0 nowych zapytań); długie pismo prozą (kancelaria) = czynność, jej opis i dzień z jednego zapytania do modelu
+# (lista zamknięta 12 kodów, data musi stać w tekście); numer TED w zapisach „RRRR/S NNN-NNNNNN” / „NNNNNN-RRRR”,
+# gdy reguły pola nic nie dały. false = wynik jak bez routera. Zmienna ROUTER_PROZY=0/1 nadpisuje.
+router_prozy: true

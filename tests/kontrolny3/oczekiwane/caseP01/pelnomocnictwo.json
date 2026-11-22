@@ -1,0 +1,31 @@
+{
+  "mocodawca": [
+    {
+      "data": {
+        "imie_nazwisko": null,
+        "krs": "9992882388",
+        "nazwa": "Rolmex Maszyny Rolnicze sp. z o.o.",
+        "nip": "9997805198",
+        "typ": "osoba_prawna"
+      },
+      "podpisujacy": [
+        {
+          "imie_nazwisko": "Adam Nowak"
+        },
+        {
+          "imie_nazwisko": "Beata Kowalczyk"
+        }
+      ]
+    }
+  ],
+  "pelnomocnicy": [
+    {
+      "imie_nazwisko": "Cezary Zając",
+      "pesel": null
+    },
+    {
+      "imie_nazwisko": "Dominika Wróblewska",
+      "pesel": null
+    }
+  ]
+}

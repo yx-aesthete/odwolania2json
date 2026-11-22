@@ -1,0 +1,41 @@
+{
+  "mocodawca": [
+    {
+      "data": {
+        "imie_nazwisko": null,
+        "krs": "9990449018",
+        "nazwa": "Termoinstal Śląsk sp. z o.o.",
+        "nip": "9996970475",
+        "typ": "osoba_prawna"
+      },
+      "podpisujacy": [
+        {
+          "imie_nazwisko": "Adam Nowak"
+        }
+      ]
+    },
+    {
+      "data": {
+        "imie_nazwisko": null,
+        "krs": "9994554884",
+        "nazwa": "Ekoenergia Partner S.A.",
+        "nip": "9997501185",
+        "typ": "osoba_prawna"
+      },
+      "podpisujacy": [
+        {
+          "imie_nazwisko": "Laura Michalska"
+        },
+        {
+          "imie_nazwisko": "Kamil Dąbek"
+        }
+      ]
+    }
+  ],
+  "pelnomocnicy": [
+    {
+      "imie_nazwisko": "Beata Kowalczyk",
+      "pesel": null
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "mocodawca": [
+    {
+      "data": {
+        "imie_nazwisko": null,
+        "krs": "9996396999",
+        "nazwa": "Medi-Tech Polska sp. z o.o.",
+        "nip": "9998998489",
+        "typ": "osoba_prawna"
+      },
+      "podpisujacy": [
+        {
+          "imie_nazwisko": "Renata Duda"
+        }
+      ]
+    },
+    {
+      "data": {
+        "imie_nazwisko": null,
+        "krs": "9992936919",
+        "nazwa": "Pharmadis S.A.",
+        "nip": "9997681170",
+        "typ": "osoba_prawna"
+      },
+      "podpisujacy": [
+        {
+          "imie_nazwisko": "Przemysław Wilk"
+        }
+      ]
+    },
+    {
+      "data": {
+        "imie_nazwisko": null,
+        "krs": "9991083114",
+        "nazwa": "Sterylis sp. z o.o.",
+        "nip": "9990464179",
+        "typ": "osoba_prawna"
+      },
+      "podpisujacy": [
+        {
+          "imie_nazwisko": "Joanna Lis"
+        }
+      ]
+    }
+  ],
+  "pelnomocnicy": [
+    {
+      "imie_nazwisko": "Norbert Kuźma",
+      "pesel": null
+    }
+  ]
+}

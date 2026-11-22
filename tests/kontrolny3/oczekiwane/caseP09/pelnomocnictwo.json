@@ -1,0 +1,24 @@
+{
+  "mocodawca": [
+    {
+      "data": {
+        "imie_nazwisko": "Ignacy Wiśniewski",
+        "krs": null,
+        "nazwa": "IW Projekt Ignacy Wiśniewski",
+        "nip": "9996981119",
+        "typ": "osoba_fizyczna"
+      },
+      "podpisujacy": [
+        {
+          "imie_nazwisko": "Ignacy Wiśniewski"
+        }
+      ]
+    }
+  ],
+  "pelnomocnicy": [
+    {
+      "imie_nazwisko": "Zofia Grabowska",
+      "pesel": null
+    }
+  ]
+}

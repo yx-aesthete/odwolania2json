@@ -1,0 +1,45 @@
+{
+  "mocodawca": [
+    {
+      "data": {
+        "imie_nazwisko": null,
+        "krs": "9992942406",
+        "nazwa": "Drogpol Lubuskie sp. z o.o.",
+        "nip": "9991453203",
+        "typ": "osoba_prawna"
+      },
+      "podpisujacy": [
+        {
+          "imie_nazwisko": "Grzegorz Mazurek"
+        }
+      ]
+    },
+    {
+      "data": {
+        "imie_nazwisko": null,
+        "krs": "9995779142",
+        "nazwa": "Asfalt-Mix sp. j.",
+        "nip": "9998304305",
+        "typ": "osoba_prawna"
+      },
+      "podpisujacy": [
+        {
+          "imie_nazwisko": "Teresa Bąk"
+        },
+        {
+          "imie_nazwisko": "Stanisław Kot"
+        }
+      ]
+    }
+  ],
+  "pelnomocnicy": [
+    {
+      "imie_nazwisko": "Edward Kozioł",
+      "pesel": null
+    },
+    {
+      "imie_nazwisko": "Olga Szczepańska",
+      "pesel": null
+    }
+  ]
+}

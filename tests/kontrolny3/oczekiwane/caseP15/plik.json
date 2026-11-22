@@ -1,0 +1,24 @@
+{
+  "mocodawca": [
+    {
+      "data": {
+        "imie_nazwisko": "Cezary Zając",
+        "krs": null,
+        "nazwa": "Zając Geodezja Cezary Zając",
+        "nip": "9997641868",
+        "typ": "osoba_fizyczna"
+      },
+      "podpisujacy": [
+        {
+          "imie_nazwisko": "Cezary Zając"
+        }
+      ]
+    }
+  ],
+  "pelnomocnicy": [
+    {
+      "imie_nazwisko": "Agata Kuś",
+      "pesel": null
+    }
+  ]
+}

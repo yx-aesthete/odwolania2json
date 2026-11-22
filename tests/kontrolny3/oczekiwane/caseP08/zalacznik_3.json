@@ -1,0 +1,28 @@
+{
+  "mocodawca": [
+    {
+      "data": {
+        "imie_nazwisko": "Agata Kuś",
+        "krs": null,
+        "nazwa": "Kuś Catering Agata Kuś",
+        "nip": "9995583983",
+        "typ": "osoba_fizyczna"
+      },
+      "podpisujacy": [
+        {
+          "imie_nazwisko": "Agata Kuś"
+        }
+      ]
+    }
+  ],
+  "pelnomocnicy": [
+    {
+      "imie_nazwisko": "Wojciech Jeleń",
+      "pesel": null
+    },
+    {
+      "imie_nazwisko": "Jerzy Pietrzyk",
+      "pesel": "70021013284"
+    }
+  ]
+}

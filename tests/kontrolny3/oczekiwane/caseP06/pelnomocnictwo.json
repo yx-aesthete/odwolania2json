@@ -1,0 +1,31 @@
+{
+  "mocodawca": [
+    {
+      "data": {
+        "imie_nazwisko": null,
+        "krs": "9999040980",
+        "nazwa": "Norbud Konstrukcje Stalowe S.A.",
+        "nip": "9995558778",
+        "typ": "osoba_prawna"
+      },
+      "podpisujacy": [
+        {
+          "imie_nazwisko": "Norbert Kuźma"
+        },
+        {
+          "imie_nazwisko": "Olga Szczepańska"
+        }
+      ]
+    }
+  ],
+  "pelnomocnicy": [
+    {
+      "imie_nazwisko": "Przemysław Wilk",
+      "pesel": null
+    },
+    {
+      "imie_nazwisko": "Renata Duda",
+      "pesel": "94080886805"
+    }
+  ]
+}

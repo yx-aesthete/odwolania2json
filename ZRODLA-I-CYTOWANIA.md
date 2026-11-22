@@ -8,7 +8,10 @@ Wymóg HackNation (FAQ, pyt. 11): wcześniej ukończone lub zewnętrzne zasoby, 
 |---|---|---|---|
 | pypdf 7.1.1 | https://github.com/py-pdf/pypdf | BSD-3-Clause | tekst z PDF |
 | PyYAML 6.0.4 | https://github.com/yaml/pyyaml | MIT | konfiguracja klas dokumentów |
-| RapidFuzz 3.14.6 | https://github.com/rapidfuzz/RapidFuzz | MIT | podobieństwo napisów w ewaluatorze (próg 0,8 wg UZP) |
+| RapidFuzz 3.14.6 | https://github.com/rapidfuzz/RapidFuzz | MIT | podobieństwo napisów w ewaluatorze (próg 0,8 wg UZP) i sprawdzanie odpowiedzi modelu w tekście |
+| pypdfium2 5.15.2 (PDFium) | https://github.com/pypdfium2-team/pypdfium2 | Apache-2.0 / BSD-3-Clause | zapasowy odczyt tekstu stron, renderowanie skanu do OCR |
+| Pillow 13.0.0 | https://github.com/python-pillow/Pillow | MIT-CMU (HPND) | obraz strony przed OCR |
+| Tesseract OCR + model `pol` (tessdata_fast) | https://github.com/tesseract-ocr/tesseract | Apache-2.0 | zapasowy OCR stron bez warstwy tekstowej (opcjonalny; w obrazie Dockera) |
 | FastAPI 0.165.0 | https://github.com/fastapi/fastapi | MIT | prototyp WWW |
 | Uvicorn 0.54.0 | https://github.com/encode/uvicorn | BSD-3-Clause | serwer prototypu |
 | python-multipart 0.0.34 | https://github.com/Kludex/python-multipart | Apache-2.0 | wgrywanie plików |
@@ -16,7 +19,9 @@ Wymóg HackNation (FAQ, pyt. 11): wcześniej ukończone lub zewnętrzne zasoby, 
 
 ## Modele / API w działającym rozwiązaniu
 
-- Obecna wersja działa na samych regułach z plików YAML, bez modelu językowego. Warstwa modelu otwartego (open-weights, przez API zgodne z OpenAI, dostawca z UE/EOG) jest w przygotowaniu i zostanie tu opisana z nazwą i licencją modelu.
+- **Gemma 4 26B-A4B Instruct** (`google/gemma-4-26B-A4B-it`, https://hf.co/google/gemma-4-26B-A4B-it), Google, licencja Apache-2.0, otwarte wagi — model domyślny (ekstrakcja oraz OCR stron bez warstwy tekstowej — wejście obrazowe), wywoływany przez Scaleway Generative APIs (Scaleway SAS, Francja, region Paryż).
+- Qwen3.8-27B (`Qwen/Qwen3.8-27B`, https://hf.co/Qwen/Qwen3.8-27B), Alibaba Cloud / Qwen, Apache-2.0 — model zapasowy.
+- W porównaniu (bez użycia w produkcie): qwen3.6-35b-a3b, mistral-small-3.2-24b-instruct-2506, gpt-oss-120b, qwen3-235b-a22b-instruct-2507, qwen3.5-397b-a17b (wszystkie Apache-2.0) przez Scaleway; Qwen2.5-7B-Instruct (Apache-2.0) przez Ollama (MIT) lokalnie do testów adaptera.
 
 ## Dane
 
@@ -25,5 +30,4 @@ Wymóg HackNation (FAQ, pyt. 11): wcześniej ukończone lub zewnętrzne zasoby, 
 
 ## Narzędzia użyte do wytwarzania kodu
 
-- Przy tworzeniu korzystano ze standardowych narzędzi programistycznych (edytor kodu, system kontroli wersji, narzędzia wspomagające pisanie i testowanie kodu). Cały kod został przejrzany i przetestowany przez autora.
-- Tesseract OCR (Apache-2.0) z modelem `pol` z tessdata_fast — użyty ręcznie do odczytania zeskanowanego przykładu UZP podczas testów odporności (w produkcie na razie nie).
+- Asystent programisty oparty na modelu językowym, pod nadzorem autora (pisanie i przegląd kodu, testów i dokumentacji). Nie jest częścią działającego rozwiązania.

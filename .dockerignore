@@ -1,0 +1,13 @@
+.venv
+.cache
+data
+audit
+output
+input
+__pycache__
+.pytest_cache
+.env
+.env.*
+*.log
+docs
+tests

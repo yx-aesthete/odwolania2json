@@ -1,0 +1,28 @@
+{
+  "mocodawca": [
+    {
+      "data": {
+        "imie_nazwisko": null,
+        "krs": "9990783145",
+        "nazwa": "Ochrona Plus Security sp. z o.o.",
+        "nip": "9995371620",
+        "typ": "osoba_prawna"
+      },
+      "podpisujacy": [
+        {
+          "imie_nazwisko": "Dominika Wróblewska"
+        }
+      ]
+    }
+  ],
+  "pelnomocnicy": [
+    {
+      "imie_nazwisko": "Kamil Dąbek",
+      "pesel": null
+    },
+    {
+      "imie_nazwisko": "Laura Michalska",
+      "pesel": null
+    }
+  ]
+}

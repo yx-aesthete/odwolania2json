@@ -1,0 +1,28 @@
+{
+  "mocodawca": [
+    {
+      "data": {
+        "imie_nazwisko": null,
+        "krs": "9992674246",
+        "nazwa": "Elektro-Serwis Pomorze sp. z o.o. sp.k.",
+        "nip": "9992377792",
+        "typ": "osoba_prawna"
+      },
+      "podpisujacy": [
+        {
+          "imie_nazwisko": "Grzegorz Mazurek"
+        }
+      ]
+    }
+  ],
+  "pelnomocnicy": [
+    {
+      "imie_nazwisko": "Halina Sienkiewicz-Wolska",
+      "pesel": null
+    },
+    {
+      "imie_nazwisko": "Ignacy Wiśniewski",
+      "pesel": null
+    }
+  ]
+}

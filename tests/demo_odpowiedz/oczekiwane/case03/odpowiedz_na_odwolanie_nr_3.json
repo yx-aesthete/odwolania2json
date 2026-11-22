@@ -1,0 +1,15 @@
+{
+  "OdpowiedzNaOdwolanie": {
+    "sygnatura": "KIO 9993/26",
+    "data": "2026-11-15",
+    "wniosek": "oddalenie"
+  },
+  "Zamawiajacy": {
+    "nazwa": "Zarząd Dróg Powiatowych w Lesznie Wymyślonym",
+    "nip": "9993710466"
+  },
+  "Odwolujacy": {
+    "nazwa": "Drogbud Fikcyjny Jan Nowakowski"
+  },
+  "pelnomocnik": "Katarzyna Lis"
+}

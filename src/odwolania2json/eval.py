@@ -6,7 +6,7 @@ Metoda UZP (Discord, 21.11 11:26):
 - FP: wartość jest tylko u nas albo jest u obu, ale nieprawidłowa,
 - FN: u nas brak, a w referencji jest,
 - TN: brak u obu (do F1 się nie liczy, tylko raportujemy).
-Tablice domyślnie po kolejności; `--lists best` dopasowuje elementy po treści.
+Tablice domyślnie dopasowywane po treści (`--lists best`, UZP: kolejność nie gra roli); `--lists order` po kolejności.
 
     python -m odwolania2json.eval --gold data/raw/uzp/dane --pred output [--sprawy 41-60]
 """
@@ -32,7 +32,9 @@ KLUCZ_KLASY = {"OdwolanieKIO": "odwolanie", "mocodawca": "pelnomocnictwo", "prze
 @dataclass(frozen=True)
 class Ustawienia:
     prog: float = 0.8
-    pola_dlugie: frozenset[str] = frozenset({"nazwa", "tytul", "czynnosc_opis"})
+    pola_dlugie: frozenset[str] = frozenset({
+        "Odwolujacy[].pelnomocnik.nazwa", "przelew_bankowy.tytul", "Odwolujacy[].nazwa",
+        "Zamawiajacy[].nazwa", "ZamowieniePubliczne.tytul"})
     aliasy: dict = field(default_factory=lambda: {"potwierdzenie_przelewu": "przelew"})
     listy_po_tresci: bool = False
     scisle: bool = False
@@ -96,10 +98,21 @@ def normalizuj(v, scisle: bool = False) -> str | None:
     return None if s.strip() in ("", "null", "None") else s
 
 
+POLA_RACHUNKU = ("przelew_bankowy.z_rachunku", "przelew_bankowy.na_rachunek")
+
+
+def bez_pl(v: str) -> str:
+    """Rachunek bez prefiksu kraju: część referencji UZP błędnie zdejmuje PL (UZP na Discordzie 21.11), więc
+    w ocenie rachunki porównujemy z pominięciem PL po obu stronach (aplikacja zwraca PL, gdy stoi w dokumencie)."""
+    return re.sub(r"^(?i:pl)\s*", "", v)
+
+
 def zgodne(sciezka: str, gv: str, pv: str, u: Ustawienia) -> bool:
     if gv == pv:
         return True
-    if sciezka.rsplit(".", 1)[-1] in u.pola_dlugie:
+    if sciezka.endswith(POLA_RACHUNKU) and bez_pl(gv) == bez_pl(pv):
+        return True
+    if ogolne_pole(sciezka) in u.pola_dlugie:  # ścieżka pola, np. Odwolujacy[].nazwa (lista UZP z Discorda)
         return fuzz.ratio(gv, pv) / 100 >= u.prog
     return False
 
@@ -161,6 +174,8 @@ class Raport:
     bledy: list[tuple[str, str, object, object]] = field(default_factory=list)
     brak_pliku: list[str] = field(default_factory=list)
     zly_typ: list[tuple[str, str, str, str]] = field(default_factory=list)
+    rachunki: int = 0        # rachunki w wynikach (z_rachunku, na_rachunek)
+    rachunki_pl: int = 0     # w tym z prefiksem PL
 
 
 def porownaj(gold: dict, pred: dict, u: Ustawienia, klasa: str, gdzie: str, raport: Raport) -> None:
@@ -171,11 +186,16 @@ def porownaj(gold: dict, pred: dict, u: Ustawienia, klasa: str, gdzie: str, rapo
         gv, pv = normalizuj(g.get(klucz), u.scisle), normalizuj(p.get(klucz), u.scisle)
         l = Licznik()
         g0, p0 = g.get(klucz), p.get(klucz)
-        if g0 is not None and p0 is not None and _typ(g0) != _typ(p0):
+        if klucz.endswith(POLA_RACHUNKU) and isinstance(p0, str) and p0:
+            raport.rachunki += 1
+            raport.rachunki_pl += p0.upper().startswith("PL")
+        zly_typ = g0 is not None and p0 is not None and _typ(g0) != _typ(p0)
+        if zly_typ:
             raport.zly_typ.append((gdzie, klucz, _typ(g0), _typ(p0)))
         if gv is None and pv is None:
             l.tn = 1
-        elif gv is not None and pv is not None and zgodne(klucz, gv, pv, u):
+        elif gv is not None and pv is not None and not (u.scisle and zly_typ) and zgodne(klucz, gv, pv, u):
+            # tryb ścisły: "100" zamiast 100 (albo odwrotnie) to błąd (FP), jak u automatu porównującego JSON
             l.tp = 1
         else:
             l.fp = int(pv is not None)
@@ -253,6 +273,9 @@ def drukuj(raport: Raport, top: int) -> None:
     print(tabela_md(raport))
     if raport.zly_typ:
         print(f"\nZły typ wartości: {len(raport.zly_typ)} (np. {raport.zly_typ[:3]})")
+    if raport.rachunki:
+        print(f"\nRachunki w wynikach: {raport.rachunki}, w tym z PL: {raport.rachunki_pl} "
+              "(porównanie z referencją bez PL po obu stronach)")
     if raport.brak_pliku:
         print(f"\nBrak pliku wyniku: {len(raport.brak_pliku)} (np. {raport.brak_pliku[:3]})")
     if top:
@@ -267,7 +290,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--gold", type=Path, default=KORZEN / "data/raw/uzp/dane")
     ap.add_argument("--pred", type=Path, default=KORZEN / "output")
     ap.add_argument("--config", type=Path, default=KORZEN / "config/ewaluacja.yaml")
-    ap.add_argument("--lists", choices=["order", "best"], default="order")
+    ap.add_argument("--lists", choices=["order", "best"], default="best")
     ap.add_argument("--scisle", action="store_true", help="napisy bez normalizacji (poza progiem dla długich pól)")
     ap.add_argument("--sprawy", help="np. 1-40 (dev) albo 41-60 (holdout)")
     ap.add_argument("--top", type=int, default=25)

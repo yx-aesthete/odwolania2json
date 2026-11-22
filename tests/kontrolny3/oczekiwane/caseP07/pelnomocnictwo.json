@@ -1,0 +1,24 @@
+{
+  "mocodawca": [
+    {
+      "data": {
+        "imie_nazwisko": "Stanisław Kot",
+        "krs": null,
+        "nazwa": "KOT-BUD Usługi Remontowe Stanisław Kot",
+        "nip": "9994174142",
+        "typ": "osoba_fizyczna"
+      },
+      "podpisujacy": [
+        {
+          "imie_nazwisko": "Stanisław Kot"
+        }
+      ]
+    }
+  ],
+  "pelnomocnicy": [
+    {
+      "imie_nazwisko": "Teresa Bąk",
+      "pesel": null
+    }
+  ]
+}

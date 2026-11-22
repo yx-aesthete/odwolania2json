@@ -1,0 +1,15 @@
+{
+  "OdpowiedzNaOdwolanie": {
+    "sygnatura": "KIO 9992/26",
+    "data": "2026-11-03",
+    "wniosek": "odrzucenie"
+  },
+  "Zamawiajacy": {
+    "nazwa": "Szpital Wojewódzki im. Jana Kowalskiego w Krakowie",
+    "nip": "9992208730"
+  },
+  "Odwolujacy": {
+    "nazwa": "Konsorcjum MedTech-Fikcja S.A."
+  },
+  "pelnomocnik": "Tomasz Zielonka"
+}

@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jak to działa · Odwołania2json</title>
+<style>
+:root {
+  --tekst: #16191d; --tekst-2: #2f363d; --tekst-3: #4c545d; --linia: #d3d8dd;
+  --tlo: #ffffff; --tlo-2: #f2f4f6; --link: #1f4fa0; --siec: #1f4fa0; --siec-tlo: #e8eef9;
+  --zaznacz: #ffd84d;
+  --sans: "IBM Plex Sans", Arial, system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--tlo); color: var(--tekst); font: 17px/1.55 var(--sans); }
+a { color: var(--link); text-underline-offset: 3px; }
+a:hover { text-decoration-thickness: 2px; }
+a:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--link); outline-offset: 2px; }
+.pomin { position: absolute; left: -9999px; }
+.pomin:focus { left: 16px; top: 8px; background: var(--tlo); padding: 8px 12px; z-index: 2; }
+header { border-bottom: 1px solid #b9bfc6; }
+.pasek { max-width: 1320px; margin: 0 auto; padding: 0 20px; display: flex; flex-wrap: wrap; align-items: center; gap: 0 24px; min-height: 60px; }
+.marka { font-weight: 600; color: var(--tekst); text-decoration: none; }
+.menu { display: flex; flex-wrap: wrap; }
+.menu a { display: flex; align-items: center; min-height: 60px; padding: 0 14px; font-size: 15px; color: var(--tekst); border-bottom: 3px solid transparent; }
+.menu a[aria-current="page"] { font-weight: 600; text-decoration: none; border-bottom-color: var(--link); }
+main { max-width: 920px; margin: 0 auto; padding: 40px 20px 80px; }
+h1 { margin: 0 0 12px; font-size: clamp(28px, 6vw, 40px); line-height: 1.15; font-weight: 600; letter-spacing: -0.015em; }
+h2 { margin: 0 0 12px; font-size: 26px; line-height: 1.2; font-weight: 600; }
+h3 { margin: 0 0 4px; font-size: 19px; font-weight: 600; }
+p { margin: 0; }
+section { margin-top: 56px; }
+.wstep { font-size: 19px; max-width: 70ch; }
+.stan { font-size: 15px; color: var(--tekst-3); margin-top: 8px; }
+.spis { margin: 28px 0 0; padding: 4px 0; border-top: 1px solid var(--linia); border-bottom: 1px solid var(--linia); }
+.spis ul { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 0 24px; font-size: 15px; }
+.spis a { display: inline-flex; align-items: center; min-height: 44px; }
+.notka { font-size: 15px; color: var(--tekst-2); max-width: 70ch; }
+code, .mono { font-family: var(--mono); font-size: 0.9em; }
+.znak { display: inline-block; font-size: 13px; line-height: 1.3; padding: 1px 6px; border: 1px solid var(--tekst-3); color: var(--tekst-2); white-space: nowrap; }
+.znak.siec { border: 1px dashed var(--siec); color: var(--siec); background: var(--siec-tlo); }
+/* etapy */
+.etapy { margin: 20px 0 0; padding: 0; list-style: none; border-top: 2px solid var(--tekst); }
+.etapy > li { display: flex; flex-wrap: wrap; gap: 6px 24px; padding: 16px 0; border-bottom: 1px solid var(--linia); }
+.etapy .opis { flex: 1 1 420px; min-width: 0; }
+.etapy .opis p { font-size: 16px; }
+.etapy .liczba { flex: 0 1 200px; display: flex; flex-direction: column; gap: 4px; }
+.etapy .liczba b { font-family: var(--mono); font-size: 22px; font-weight: 500; line-height: 1.2; }
+.etapy .liczba span { font-size: 14px; color: var(--tekst-2); line-height: 1.4; }
+.yaml { margin-top: 20px; padding: 14px 16px; border: 2px solid var(--tekst); font-size: 16px; }
+/* diagram */
+.diagram { margin: 16px 0 0; }
+.diagram .przewin { overflow-x: auto; border: 1px solid var(--linia); }
+.diagram .przewin svg { display: block; width: 100%; min-width: 760px; height: auto; }
+.legenda { display: flex; flex-wrap: wrap; gap: 6px 20px; margin-top: 10px; font-size: 15px; color: var(--tekst-2); }
+/* tabele */
+.tabela { overflow-x: auto; border-top: 2px solid var(--tekst); margin-top: 16px; }
+table { width: 100%; min-width: 520px; border-collapse: collapse; font-size: 16px; line-height: 1.45; }
+caption { text-align: left; padding: 10px 0 6px; font-size: 14px; color: var(--tekst-2); }
+th, td { text-align: left; padding: 10px 12px 10px 0; border-bottom: 1px solid var(--linia); vertical-align: top; }
+thead th { font-size: 14px; font-weight: 600; color: var(--tekst-2); }
+tbody th { font-weight: 500; }
+td.f1 { font-family: var(--mono); text-align: right; white-space: nowrap; padding-right: 0; }
+.drobne { display: block; font-size: 14px; color: var(--tekst-3); font-weight: 400; }
+tr.trening th, tr.trening td { border-top: 2px solid var(--tekst); }
+ul.lista { margin: 12px 0 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 6px; font-size: 16px; }
+.dwie { display: flex; flex-wrap: wrap; gap: 24px 48px; margin-top: 20px; }
+.dwie > div { flex: 1 1 360px; }
+</style>
+</head>
+<body>
+<a class="pomin" href="#tresc">Przejdź do treści</a>
+<header>
+  <div class="pasek">
+    <a class="marka" href="/">Odwołania2json</a>
+    <nav class="menu" aria-label="Główna">
+      <a href="/">Podgląd sprawy</a>
+      <a href="/jak-to-dziala" aria-current="page">Jak to działa</a>
+    </nav>
+  </div>
+</header>
+
+<main id="tresc">
+  <h1>Jak działa Odwołania2json</h1>
+  <p class="wstep">Program bierze PDF-y sprawy odwoławczej KIO i rozpoznaje, czy to odwołanie, pełnomocnictwo czy potwierdzenie przelewu. Dane zapisuje w formacie UZP (plik JSON). Przy każdej wartości zostaje cytat z dokumentu i numer strony, żeby można ją było sprawdzić.</p>
+  <p class="stan">Liczby: stan 21.11.2026, ok. 20:30.</p>
+
+  <nav class="spis" aria-label="Na tej stronie">
+    <ul>
+      <li><a href="#etapy">7 etapów</a></li>
+      <li><a href="#przebieg">Kto z kim rozmawia</a></li>
+      <li><a href="#skutecznosc">Skuteczność</a></li>
+      <li><a href="#modele">Modele</a></li>
+      <li><a href="#wdrozenie">Wdrożenie</a></li>
+      <li><a href="#granice">Czego nie obiecujemy</a></li>
+    </ul>
+  </nav>
+
+  <section id="etapy" aria-labelledby="h-etapy">
+    <h2 id="h-etapy">7 etapów przetwarzania</h2>
+    <p class="notka">Przy każdym etapie zaznaczamy, czy dzieje się na miejscu, czy przez sieć do usługi w UE: <span class="znak">na miejscu</span> <span class="znak siec">sieć, UE</span></p>
+    <ol class="etapy" role="list">
+      <li>
+        <div class="opis"><h3>1. Wejście</h3><p>Folder <code>input/&lt;sprawa&gt;/</code> z PDF-ami albo wgranie w przeglądarce. Nazwy plików nie mają znaczenia. <span class="znak">na miejscu</span></p></div>
+        <div class="liczba"><b>do 10 plików</b><span>i 10 MB na jedno wgranie w przeglądarce</span></div>
+      </li>
+      <li>
+        <div class="opis"><h3>2. Tekst z PDF albo OCR</h3><p>PDF z tekstem czytamy wprost <span class="znak">na miejscu</span>. Obraz strony bez tekstu, czyli skanu, wysyłamy do modelu rozpoznawania tekstu (OCR), który przepisuje tekst strony <span class="znak siec">sieć, UE</span>. Bez sieci PDF-y z tekstem działają na samych regułach, a skany wymagają OCR przez sieć (lokalny program OCR tylko, jeśli ktoś go zainstaluje).</p></div>
+        <div class="liczba"><b>ok. 1 s</b><span>na sprawę z tekstem</span><b>7–13 s</b><span>na stronę skanu</span></div>
+      </li>
+      <li>
+        <div class="opis"><h3>3. Rozpoznanie rodzaju pisma</h3><p>Punkty za tytuł i charakterystyczne słowa z plików opisu rodzajów pism (pliki YAML) <span class="znak">na miejscu</span>. Przy niskiej pewności rozstrzyga model <span class="znak siec">sieć, UE</span>. Pismo innego rodzaju dostaje pusty wynik <code>{}</code>, tak jak wymaga UZP.</p></div>
+        <div class="liczba"><b>0</b><span>źle rozpoznanych pism na wszystkich zbiorach testowych</span></div>
+      </li>
+      <li>
+        <div class="opis"><h3>4. Wyciągnięcie pól regułami</h3><p>Etykiety, wzorce i ujednolicenie zapisu: KRS, NIP, REGON, PESEL, rachunki, numery BZP i TED, daty, kwoty, powód odwołania ze słownika UZP. <span class="znak">na miejscu</span></p></div>
+        <div class="liczba"><b>36 pól</b><span>w typowej sprawie: odwołanie 22, pełnomocnictwo 8, przelew 6</span></div>
+      </li>
+      <li>
+        <div class="opis"><h3>5. Model poprawia pola opisowe</h3><p>Jedno pytanie na dokument: nazwy stron, osoby, podpisujący, pełnomocnicy w mianowniku. Model dostaje tekst dokumentu, więc także zawarte w nim dane osobowe. Propozycja modelu przechodzi tylko wtedy, gdy jej słowa (rdzenie) występują w tekście dokumentu: model może zmienić tylko końcówki. Identyfikatory (KRS, NIP, PESEL, rachunki) zawsze pochodzą z reguł. <span class="znak siec">sieć, UE</span></p></div>
+        <div class="liczba"><b>1 pytanie</b><span>na dokument</span></div>
+      </li>
+      <li>
+        <div class="opis"><h3>6. JSON UZP i ślad źródła</h3><p><code>output/&lt;sprawa&gt;/&lt;nazwa&gt;.json</code> ściśle według wzoru UZP. Obok, w <code>audit/</code>, dla każdego pola cytat, strona i sposób wyciągnięcia. <span class="znak">na miejscu</span></p></div>
+        <div class="liczba"><b>0</b><span>błędów formatu</span></div>
+      </li>
+      <li>
+        <div class="opis"><h3>7. Podgląd i API</h3><p>Strona dla urzędnika: dokument obok danych, cytat przy polu. Do połączenia z innym systemem: interfejs programistyczny (API) zwracający tę samą treść w JSON. <span class="znak">na miejscu</span></p></div>
+        <div class="liczba"><b>2 drogi</b><span>przeglądarka albo wywołanie z systemu</span></div>
+      </li>
+    </ol>
+    <p class="yaml"><b>Nowy rodzaj pisma to nowy plik YAML, bez zmiany kodu.</b> Pokazowy rodzaj „odpowiedź na odwołanie” to plik z 15 liniami: same nazwy i opisy pól, bez wzorców, więc wartości wyciąga wtedy model przez sieć. Domyślnie jest wyłączony, bo pisma innych stron mają u UZP dawać <code>{}</code>.</p>
+  </section>
+
+  <section id="przebieg" aria-labelledby="h-przebieg">
+    <h2 id="h-przebieg">Kto z kim rozmawia</h2>
+    <p class="notka">Linie ciągłe to praca na miejscu, na komputerze albo serwerze UZP. Linie przerywane to wywołania przez sieć do usług w UE. Do OCR idzie obraz strony skanu, do modelu tekst dokumentu, w obu przypadkach z danymi osobowymi, jeśli są w piśmie. Bez klucza albo przy awarii usług PDF-y z tekstem działają dalej na samych regułach, na miejscu. Skany wymagają wtedy OCR przez sieć.</p>
+    <p class="notka" style="margin-top:6px">Na wąskim ekranie przewiń diagram w bok.</p>
+    <figure class="diagram">
+      <div class="przewin" tabindex="0" role="region" aria-label="Diagram przebiegu, przewijany w poziomie">
+        <svg viewBox="0 0 920 600" role="img" aria-labelledby="sek-tytul sek-opis" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Sans, Arial, sans-serif">
+          <title id="sek-tytul">Przebieg przetwarzania sprawy</title>
+          <desc id="sek-opis">Urzędnik albo system UZP przekazuje PDF-y aplikacji. Odczyt PDF bierze tekst z pliku; dla skanu wysyła obraz strony do OCR w UE i dostaje tekst strony, potem oddaje tekst aplikacji. Rozpoznanie rodzaju pisma działa na miejscu, przy niskiej pewności pyta model w UE. Reguły na miejscu zwracają wartości z cytatami. Do modelu w UE idzie tekst dokumentu i pola opisowe; propozycja przechodzi tylko, gdy jej rdzenie są w tekście. Na końcu aplikacja zwraca JSON UZP i audyt cytatów.</desc>
+          <defs>
+            <marker id="g-lok" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="#16191d"/></marker>
+            <marker id="g-siec" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="#1f4fa0"/></marker>
+          </defs>
+          <g font-size="12.5" text-anchor="middle"><rect x="12" y="10" width="116" height="48" fill="#ffffff" stroke="#16191d"/><text x="70" y="30" fill="#16191d">Urzędnik albo</text><text x="70" y="46" fill="#16191d">system UZP</text><rect x="142" y="10" width="116" height="48" fill="#ffffff" stroke="#16191d" stroke-width="2"/><text x="200" y="30" fill="#16191d">Aplikacja: podgląd</text><text x="200" y="46" fill="#16191d">lub wiersz poleceń</text><rect x="272" y="10" width="116" height="48" fill="#ffffff" stroke="#16191d"/><text x="330" y="38" fill="#16191d">Odczyt PDF</text><rect x="402" y="10" width="116" height="48" fill="#e8eef9" stroke="#1f4fa0" stroke-dasharray="5 4"/><text x="460" y="30" fill="#1f4fa0">OCR</text><text x="460" y="46" fill="#1f4fa0">usługa w UE</text><rect x="532" y="10" width="116" height="48" fill="#ffffff" stroke="#16191d"/><text x="590" y="30" fill="#16191d">Rozpoznanie</text><text x="590" y="46" fill="#16191d">rodzaju pisma</text><rect x="662" y="10" width="116" height="48" fill="#ffffff" stroke="#16191d"/><text x="720" y="30" fill="#16191d">Reguły</text><text x="720" y="46" fill="#16191d">(pliki opisu)</text><rect x="792" y="10" width="116" height="48" fill="#e8eef9" stroke="#1f4fa0" stroke-dasharray="5 4"/><text x="850" y="30" fill="#1f4fa0">Model językowy</text><text x="850" y="46" fill="#1f4fa0">usługa w UE</text></g>
+          <g stroke="#b9bfc6" stroke-width="1"><line x1="70" y1="58" x2="70" y2="580"/><line x1="200" y1="58" x2="200" y2="580"/><line x1="330" y1="58" x2="330" y2="580"/><line x1="460" y1="58" x2="460" y2="580" stroke="#9fb4d8"/><line x1="590" y1="58" x2="590" y2="580"/><line x1="720" y1="58" x2="720" y2="580"/><line x1="850" y1="58" x2="850" y2="580" stroke="#9fb4d8"/></g>
+          <g stroke="#16191d" stroke-width="1.5" fill="none" marker-end="url(#g-lok)"><line x1="70" y1="92" x2="198" y2="92"/><line x1="200" y1="124" x2="328" y2="124"/><line x1="330" y1="220" x2="202" y2="220"/><line x1="200" y1="252" x2="588" y2="252"/><line x1="590" y1="348" x2="202" y2="348"/><line x1="200" y1="380" x2="718" y2="380"/><line x1="720" y1="412" x2="202" y2="412"/><line x1="200" y1="560" x2="72" y2="560"/><path d="M200 500 h40 v20 h-38"/></g>
+          <g stroke="#1f4fa0" stroke-width="1.5" stroke-dasharray="6 4" fill="none" marker-end="url(#g-siec)"><line x1="330" y1="156" x2="458" y2="156"/><line x1="460" y1="188" x2="332" y2="188"/><line x1="590" y1="284" x2="848" y2="284"/><line x1="850" y1="316" x2="592" y2="316"/><line x1="200" y1="444" x2="848" y2="444"/><line x1="850" y1="476" x2="202" y2="476"/></g>
+          <g font-size="13.5"><text x="135" y="86" fill="#16191d" text-anchor="middle" stroke="#ffffff" stroke-width="5" paint-order="stroke">PDF-y sprawy</text><text x="265" y="118" fill="#16191d" text-anchor="middle" stroke="#ffffff" stroke-width="5" paint-order="stroke">każdy plik</text><text x="265" y="214" fill="#16191d" text-anchor="middle" stroke="#ffffff" stroke-width="5" paint-order="stroke">tekst (z PDF albo z OCR)</text><text x="395" y="246" fill="#16191d" text-anchor="middle" stroke="#ffffff" stroke-width="5" paint-order="stroke">tekst</text><text x="395" y="342" fill="#16191d" text-anchor="middle" stroke="#ffffff" stroke-width="5" paint-order="stroke">rodzaj pisma albo obcy</text><text x="525" y="374" fill="#16191d" text-anchor="middle" stroke="#ffffff" stroke-width="5" paint-order="stroke">tekst + rodzaj pisma</text><text x="525" y="406" fill="#16191d" text-anchor="middle" stroke="#ffffff" stroke-width="5" paint-order="stroke">wartości + cytaty</text><text x="135" y="554" fill="#16191d" text-anchor="middle" stroke="#ffffff" stroke-width="5" paint-order="stroke">JSON UZP + audyt</text><text x="248" y="515" fill="#16191d" text-anchor="start" stroke="#ffffff" stroke-width="5" paint-order="stroke">propozycja przechodzi tylko, gdy jej rdzenie są w tekście</text><text x="395" y="150" fill="#1f4fa0" text-anchor="middle" stroke="#ffffff" stroke-width="5" paint-order="stroke">obraz strony (tylko skan)</text><text x="395" y="182" fill="#1f4fa0" text-anchor="middle" stroke="#ffffff" stroke-width="5" paint-order="stroke">tekst strony</text><text x="655" y="278" fill="#1f4fa0" text-anchor="middle" stroke="#ffffff" stroke-width="5" paint-order="stroke">niska pewność: lista rodzajów + tekst</text><text x="655" y="310" fill="#1f4fa0" text-anchor="middle" stroke="#ffffff" stroke-width="5" paint-order="stroke">rodzaj albo obcy</text><text x="525" y="438" fill="#1f4fa0" text-anchor="middle" stroke="#ffffff" stroke-width="5" paint-order="stroke">tekst dokumentu + pola opisowe</text><text x="525" y="470" fill="#1f4fa0" text-anchor="middle" stroke="#ffffff" stroke-width="5" paint-order="stroke">propozycje modelu</text></g>
+        </svg>
+      </div>
+      <figcaption class="legenda">
+        <span><svg width="36" height="10" aria-hidden="true"><line x1="0" y1="5" x2="36" y2="5" stroke="#16191d" stroke-width="2"/></svg> na miejscu</span>
+        <span><svg width="36" height="10" aria-hidden="true"><line x1="0" y1="5" x2="36" y2="5" stroke="#1f4fa0" stroke-width="2" stroke-dasharray="6 4"/></svg> przez sieć do usługi w UE (opcjonalnie)</span>
+      </figcaption>
+    </figure>
+  </section>
+
+  <section id="skutecznosc" aria-labelledby="h-skutecznosc">
+    <h2 id="h-skutecznosc">Skuteczność</h2>
+    <p class="notka">F1 to zgodność z wzorcem, liczona zasadami UZP: pole po polu, pięć pól opisowych z progiem 80% podobieństwa, reszta dokładnie, listy po treści. 1,000 oznacza pełną zgodność. Dwa zbiory przygotowały osoby bez wglądu w reguły, skany przygotował UZP. Pozostałe zbiory kontrolne zrobił nasz tester i służą do wykrywania regresji. Na wszystkich zbiorach zero źle rozpoznanych rodzajów pism i zero błędów formatu.</p>
+    <div class="tabela" tabindex="0" role="region" aria-labelledby="h-skutecznosc">
+      <table style="min-width:0">
+        <caption>Najpierw zbiory przygotowane bez wglądu w reguły, potem zbiór kontrolny testera, na końcu dane, na których zbudowano reguły.</caption>
+        <thead><tr><th scope="col">Zbiór</th><th scope="col" style="text-align:right">F1</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Niezależny zbiór w stylu danych UZP<span class="drobne">8 spraw, 26 PDF</span></th><td class="f1">0,993</td></tr>
+          <tr><th scope="row">Skany UZP, sprawy nieużywane przy strojeniu<span class="drobne">9 dokumentów, OCR: Mistral Small przez sieć, 2 przebiegi z tym samym wynikiem</span></th><td class="f1">0,95</td></tr>
+          <tr><th scope="row">Niezależny zbiór w stylu pism kancelarii<span class="drobne">8 spraw, 28 PDF</span></th><td class="f1">0,92–0,94</td></tr>
+          <tr><th scope="row">Zbiór kontrolny testera: nietypowe układy<span class="drobne">[N] spraw, tabela w nagłówku, inne etykiety stron; do wykrywania regresji</span></th><td class="f1">0,83–0,89</td></tr>
+          <tr class="trening"><th scope="row">Dane treningowe UZP: 60 spraw i pisma innych rodzajów<span class="drobne">na tych danych powstały reguły, więc to nie jest prognoza</span></th><td class="f1">1,000</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="notka" style="margin-top:10px">Zakres zastąpimy jedną liczbą po ostatnim pomiarze: [DO PODMIANY].</p>
+  </section>
+
+  <section id="modele" aria-labelledby="h-modele">
+    <h2 id="h-modele">Modele</h2>
+    <p class="notka">Oba modele mają otwarte wagi i działają przez sieć na serwerach Scaleway w UE. Identyfikatory (KRS, NIP, PESEL, rachunki) zawsze pochodzą z reguł.</p>
+    <div class="tabela" tabindex="0" role="region" aria-labelledby="h-modele">
+      <table>
+        <thead><tr><th scope="col">Model</th><th scope="col">Rozmiar</th><th scope="col">Licencja</th><th scope="col">Rola</th><th scope="col">Gdzie działa</th></tr></thead>
+        <tbody>
+          <tr><th scope="row"><span class="mono">gemma-4-26b-a4b-it</span></th><td>26 mld parametrów</td><td>Apache-2.0</td><td>pola opisowe: nazwy, tytuł zamówienia, powód odwołania</td><td>API Scaleway, UE</td></tr>
+          <tr><th scope="row"><span class="mono">mistral-small-3.2-24b-instruct-2506</span></th><td>24 mld parametrów</td><td>Apache-2.0</td><td>OCR, tylko dla stron bez tekstu w PDF</td><td>API Scaleway, UE</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="notka" style="margin-top:10px">Najmniejsze modele, które dały najwyższe F1: większy model (397 mld) nie był lepszy.</p>
+  </section>
+
+  <section id="wdrozenie" aria-labelledby="h-wdrozenie">
+    <h2 id="h-wdrozenie">Wdrożenie jako etap potoku</h2>
+    <p style="font-size:16px">Aplikacja to jeden kontener bez bazy danych. Przyjmuje PDF-y z katalogu albo przez HTTP i oddaje pliki JSON. Można ją wstawić między przyjęcie odwołania a dalsze kroki w systemie UZP. Modele mają otwarte wagi, więc UZP może je uruchomić u siebie i wtedy nic nie wychodzi poza urząd.</p>
+    <div class="dwie">
+      <div>
+        <h3>Gotowe</h3>
+        <ul class="lista">
+          <li>Uruchomienie jedną komendą albo jako kontener, wsadowo albo przez HTTP. Integracja przez HTTP: <code>/api/sprawa</code> (pliki przetwarzane w tle, z postępem) albo <code>/api/przetworz</code> (wynik w jednym żądaniu). Opis tras: <a href="/docs">/docs</a>.</li>
+          <li>Błąd jednego pliku nie zatrzymuje reszty sprawy.</li>
+          <li>Po 3 kolejnych błędach usług w UE model i OCR przez sieć wyłączają się do końca przebiegu. PDF-y z tekstem idą dalej na samych regułach.</li>
+          <li>Pismo innego rodzaju: plik <code>{}</code>, plik pusty albo brak pliku, do wyboru w konfiguracji.</li>
+          <li>Przez HTTP najwyżej 10 plików i 10 MB na jedno wgranie. Wgrane PDF-y są na serwerze do 60 minut albo do przycisku „Zamknij sprawę”, potem usuwane. Wyniki (także z podglądu WWW, w <code>output/&lt;sprawa&gt;/</code>) i <code>audit/</code> zostają na dysku i zawierają dane z pism.</li>
+          <li>Każdą zmianę reguł mierzymy jedną komendą na zbiorach testowych.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Do ustalenia przy wdrożeniu</h3>
+        <ul class="lista">
+          <li>Logowanie i HTTPS: prototyp nie ma logowania i słucha tylko lokalnie. W urzędzie stoi za bramą logowania urzędu.</li>
+          <li>Umowa powierzenia danych z dostawcą, jeśli usługi w UE (OCR i model) mają być włączone.</li>
+          <li>Kolejka dla dużych partii i monitorowanie czasu przetwarzania (dziś: pliki przetwarzane w tle, z postępem).</li>
+          <li>Jak długo przechowywać <code>output/</code> i <code>audit/</code> i kto ma do nich dostęp.</li>
+          <li>Kto w UZP zatwierdza zmiany w plikach rodzajów pism.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="granice" aria-labelledby="h-granice">
+    <h2 id="h-granice">Czego nie obiecujemy</h2>
+    <ul class="lista">
+      <li>Odczyt skanów nie jest w pełni powtarzalny. Na części skanów dwa przebiegi różnią się nieznacznie, do 0,01 w F1.</li>
+      <li>Zbiór testowy UZP może mieć układy pism, których nie widzieliśmy. Wtedy wynik może być niższy niż w tabeli.</li>
+      <li>Każda wartość ma cytat i stronę, żeby człowiek mógł ją sprawdzić. Program nie zastępuje tej kontroli.</li>
+    </ul>
+  </section>
+</main>
+</body>
+</html>

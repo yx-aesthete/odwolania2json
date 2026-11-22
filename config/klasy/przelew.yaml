@@ -5,25 +5,90 @@ opis: Potwierdzenie wykonania przelewu bankowego
 
 rozpoznanie:
   prog: 4
+  # Dowód pozytywny (Z37): przelew tylko z kompletem cech operacji; bez tego {} (np. broszura, taryfa, regulamin,
+  # odpis KRS, SWZ z rachunkiem UZP). Każda grupa: wystarczy jedna alternatywa.
+  # co najmniej 3 z 4 grup; przy tytule potwierdzenia/przelewu/transakcji wystarczą 2 (Z39: szum OCR)
+  wymagane_min: 3
+  wymagane_z_tytulem:
+    wzorzec: 'POTWIERDZENIE|DOW[ÓO]DWYKONANIA|ELIXIR|POLECENIEPRZELEWU|PRZELEWKRAJOWY|SZCZEG[ÓO][ŁL]YTRANSAKCJI|HISTORIA(?:TRANSAKCJI|RACHUNKU)|WYCI[ĄA]G|TRANSFERCONFIRMATION|PAYMENTCONFIRMATION'
+    min: 2
+  # bez kompletu 4 cech: pismo o zobowiązaniu do zapłaty albo innej czynności nie jest potwierdzeniem operacji
+  wymagane_wyklucz_bez_kompletu:
+    - 'faktur\w*|do\s+zap[łl]aty|termin\w*\s+(?:p[łl]atno[śs]ci|zap[łl]aty)|w\s+terminie\s+\d+\s+dni|prosimy\s+o\s+(?:przelew|wp[łl]at|zap[łl]at)|wzywa\w*\s+do\s+zap[łl]aty|\bnota\b|umow\w*|wynagrodzeni\w*\s+(?:w\s+kwocie|p[łl]atn)|p[łl]atn\w*\s+przelewem|uiszcza\w*\s+si[eę]\s+(?:go\s+)?przelewem'
+    - 'nadani\w*\s+przesy[łl]k|przesy[łl]k\w*\s+(?:polecon|rejestrowan)|potwierdzeni\w*\s+nadania|odpis\w*\s+(?:aktualn|pe[łl]n|z\s+rejestru)|Krajow\w+\s+Rejestr\w*\s+S[aą]dow|taryf\w*|tabel\w*\s+op[łl]at|regulamin\w*|ofert\w*|specyfikacj\w*\s+warunk|pouczeni\w*'
+  wymagane:
+    - ['\d[\d \u00a0.]*(?:[,.]\d{2})?\s*(?:z[łl]|PLN|EUR)\b', '(?:PLN|z[łl]|EUR)\s*-?\d', '(?:kwot\w*|kwoci\w*|warto[śs][ćc]|sum[aą]|obci[aą][żz]eni\w*|uznani\w*|amount)[^\n]{0,80}\d', '^[ \t]*-?\d{1,3}(?:[ \u00a0.]*\d{3})*[,.]\d{2}[ \t]*$']
+    - ['data\s+(?:operacji|transakcji|realizacji|wykonania|(?:za)?ksi[eę]gowania|obci[aą][żz]enia|przelewu|zlecenia|waluty|wygenerowania)', 'w\s+dniu\s+\d', '\bdnia\s+\d', 'zrealizowan\w*\s+(?:dnia\s+)?\d', '(?:transaction|execution|value)\s+date', '^\s*data\s*:?\s*\d',
+       '\b\d{1,2}[.\-/]\d{1,2}[.\-/]\d{4}\b', '\b\d{4}-\d{2}-\d{2}\b']   # data w dowolnym zapisie (OCR gubi etykietę)
+    # rachunek: 24–28 cyfr po zdjęciu spacji (OCR gubi albo dokleja cyfrę); wystarczy jeden z dwóch rachunków
+    - ['(?<!\d)\d(?:[ \t]*\d){23,27}(?!\d)', '\d{2}(?:\s*\d{4}){6}', '(?:rachun\w*|konta|IBAN|account)[^\n]{0,60}\d{2}[\d \t]{10,}']
+    - ['tytu[łl]', '\bopis\b', 'odbiorc', 'nadawc', 'zleceniodawc', 'beneficjent', 'kontrahent', 'beneficiary', 'ordering', 'payee', 'title']
+  tytul:
+    'POTWIERDZENIE(?:WYKONANIA|REALIZACJI)?(?:PRZELEWU|TRANSAKCJI|OPERACJI|ZLECENIA|P[ŁL]ATNO[ŚS]CI|WP[ŁL]ATY|WPISU)': 5
+    'POTWIERDZENIE(?:WYKONANIA|REALIZACJI)': 3
+    'DOW[ÓO]DWYKONANIA|ELIXIR|HISTORIATRANSAKCJI|SZCZEG[ÓO][ŁL]YTRANSAKCJI': 4
   slowa:
-    'potwierdzenie\s+(?:realizacji|wykonania|przelewu|transakcji|operacji)': 3
-    'dow[oó]d\s+wykonania\s+przelewu': 3
-    'rachunek\s+(?:odbiorcy|zleceniodawcy|nadawcy|beneficjenta|obci[aą][żz]any|uznawany)': 2
-    'z\s+rachunku': 1
-    'na\s+rachunek': 1
-    'tytu[łl](?:\s+przelewu|em)?': 1
-    'numer\s+referencyjny|nr\s+ref': 1
-    'kwota|warto[śs][ćc]': 1
-    'zrealizowan': 1
-    '\bbank\b': 1
+    'potwierdzenie\s+(?:realizacji|wykonania|przelewu|transakcji|operacji)': 2
+    'rachunek\s+(?:odbiorcy|zleceniodawcy|nadawcy|beneficjenta|obci[aą][żz]any|uznawany|[źz]r[oó]d[łl]owy|docelowy)': 2
+    'z\s+rachunku|na\s+rachunek|nr\s+rachunku': 1
+    '(?:PL)?\s?\d{2}(?:\s?\d{4}){6}': 2
+    'tytu[łl](?:\s+przelewu|em|\s+p[łl]atno[śs]ci)?\s*:|^\s*tytu[łl](?:\s+przelewu|em)?\s*$': 1
+    'kwota(?:\s+przelewu|\s+operacji|\s+transakcji)?\s*:': 1
+    '\bkwota': 1
+    'op[łl]at\w*\s+skarbow|wpis\w*\s+(?:od\s+)?odwo[łl]ani|\bIBAN\b|data\s+wygenerowania|godz\.\s*\d': 2
+    'data\s+(?:operacji|realizacji|ksi[eę]gowania|zaksi[eę]gowania|transakcji|wykonania|obci[aą][żz]enia)': 2
+    'zleceniodawc|nadawc|odbiorc|beneficjent': 1
+    'wpis\w*\s+od\s+odwo[łl]ani': 1
+    'zrealizowan|wykonan[ay]\s+przelew|status\s*:?\s*(?:zrealizowan|wykonan)': 1
+    '\bbank\b|\bBIC\b|SWIFT': 1
+    'bank\s+potwierdza|wykonano\s+przelew|przelew\s+(?:krajowy|wychodz|elixir|natychmiastowy|zosta[łl])': 2
+    '\d[\d \u00a0.]*[,.]\d{2}\s*(?:z[łl]|PLN)\b|(?:PLN|z[łl])\s*\d[\d \u00a0.]*[,.]\d{2}': 2
+    'urz[aą]d\w*\s+zam[oó]wie[ńn]\s+publicznych': 1
+    'transfer\s+confirmation|payment\s+confirmation|beneficiary|ordering\s+(?:party|customer)|amount\s*:': 2
+  ujemne:
+    # hamulec dla pism, które mają rachunek i kwotę, ale nie są potwierdzeniem operacji
+    'odpis\s+(?:aktualny|pe[łl]ny|z\s+rejestru)|Krajow\w+\s+Rejestr\w*\s+S[aą]dow|Centraln\w+\s+Informacj|CEIDG|Centraln\w+\s+Ewidencj': 6
+    'taryf\w*\s+(?:op[łl]at|prowizji)|tabel\w*\s+op[łl]at|regulamin\w*\s+(?:świadczenia|rachunk|kart|us[łl]ug)|ofert\w*\s+(?:kredyt|bank|po[żz]yczk|lokat)|oprocentowani|RRSO': 5
+    'specyfikacj\w*\s+warunk\w*\s+zam[oó]wieni|pouczeni\w*\s+o\s+[śs]rodkach|przesy[łl]k\w*\s+(?:polecon|rejestrowan)|potwierdzeni\w*\s+nadania|nadawca\s+przesy[łl]ki': 5
+    'og[łl]oszenie\s+o\s+zam[oó]wieniu|Dz\.\s?U\.\s?S|\bOJ\s+S\b|Biuletyn\w*\s+Zam[oó]wie[ńn]\s+Publicznych|Oficjalna\s+nazwa|Nabywca': 6
+  tytul_ujemne:
+    # ogłoszenia TED/BZP, decyzje i inne dokumenty urzędowe
+    'OG[ŁL]OSZENIEO(?:ZAM[ÓO]WIENIU|WYNIKU|ZMIANIE|UDZIELENIU)|OJS\d|DZ\.?U\.?S|BIULETYNZAM[ÓO]WIE[ŃN]PUBLICZNYCH|DECYZJA|BROSZURA|KOMUNIKAT': 8
+    'ODWO[ŁL]ANIE(?!SI[ĘE]|NA)': 6
+    'PE[ŁL]NOMOCNICTWO': 6
+    'WEZWANIE|WYROK|INFORMACJAO|OG[ŁL]OSZENIE': 8
+
+# Usuwane przed ekstrakcją.
+oczysc:
+  # pieczątka wpływu wtrącona w tekst skanu („WPŁYNĘŁO / dnia 21.08.2026 L.dz. 199”, podpis kierownika)
+  - '(?m)^[ \t]*WP[ŁL]YN[ĘE][ŁL]O\b[^\n]*\n?(?:[ \t]*dnia\s+\d{1,2}[./-]\d{1,2}[./-]\d{4}[^\n]*\n?)?'
+  - '(?m)^[ \t]*Podpis\s+Kierownika[^\n]*\n?'
 
 sekcje:
   tytul:
-    od: '^[ \t]*(?:tytu[łl](?:\s+przelewu)?|tytu[łl]em|opis)[ \t]*(?::|\.{2,})?[ \t]*'
+    # „Tytut:”, „Tytuł;” — OCR przekręca ostatnią literę etykiety i dwukropek (wtedy wymagany znak po etykiecie)
+    od: '^[ \t]*(?:tytu[łl]em|tytu[łl](?:\s+przelewu)?|tytu\w(?=[ \t]*[:;])|szczeg[oó][łl]y\s+p[łl]atno[śs]ci)[ \t]*(?:[:;]|\.{2,})?[ \t]*'
+    flagi: [i, m]
+    do: &koniec_tytulu
+      - '^[ \t]*(?:numer|nr|identyfikator|status|kana[łl]|data|kwota|warto[śs][ćc]|typ|waluta|op[łl]ata(?:/prowizja|[ \t]*:|[ \t]*\.{2,}|[ \t]*$)|rachunek|z\s+rachunku|na\s+rachunek|godz)\b'
+      - '”'
+      - '(?:dokument\s+(?:jest\s+wydrukiem|wygenerowan|podpisany|elektroniczny|sporz[aą]dzon)|signature\s+not\s+verified|niniejsze\s+potwierdzenie|strona\s+\d+\s*/\s*\d+)'
+      - '^[^\n]{0,40}?(?:nie\s+wymaga\s+(?:\w+\s+)?(?:podpis|piecz|stempl)|wydruk\w*\s+komputerow)'   # linia stopki banku, także z błędami OCR na początku
+    max_znakow: 400
+  opis:   # „Opis” wydruku bankowego, gdy nie ma pola „Tytuł”
+    od: '^[ \t]*opis[ \t]*(?::|\.{2,})?[ \t]*'
     flagi: [i, m]
     do:
-      - '^[ \t]*(?:numer|nr|identyfikator|status|kana[łl]|data|kwota|typ|waluta|op[łl]ata(?:/prowizja|[ \t]*:|[ \t]*\.{2,}|[ \t]*$)|rachunek|z\s+rachunku|na\s+rachunek|godz)\b'
+      - '^[ \t]*(?:numer|nr|identyfikator|status|kana[łl]|data|kwota|warto[śs][ćc]|typ|waluta|op[łl]ata(?:/prowizja|[ \t]*:|[ \t]*\.{2,}|[ \t]*$)|rachunek|z\s+rachunku|na\s+rachunek|godz)\b'
       - '”'
+      - '(?:dokument\s+(?:jest\s+wydrukiem|wygenerowan|podpisany|elektroniczny|sporz[aą]dzon)|signature\s+not\s+verified|niniejsze\s+potwierdzenie|strona\s+\d+\s*/\s*\d+)'
+      - '^[^\n]{0,40}?(?:nie\s+wymaga\s+(?:\w+\s+)?(?:podpis|piecz|stempl)|wydruk\w*\s+komputerow)'   # linia stopki banku, także z błędami OCR na początku
+    max_znakow: 400
+  tytul_tresc:   # tytuł po treści (wpis od odwołania / opłata skarbowa), gdy OCR zgubił etykietę pola
+    od: '(?<!\w)(?=wpis\w*[ \t]+od[ \t]+odw|op[łl]at\w*[ \t]+skarbow)'
+    z_naglowkiem: true
+    flagi: [i, m]
+    do: *koniec_tytulu
     max_znakow: 400
   list_banku:   # potwierdzenie w formie pisma: "Bank potwierdza, że w dniu ... z rachunku nr ..."
     od: 'bank\s+potwierdza'
@@ -33,39 +98,115 @@ wynik:
   przelew_bankowy:
     data_operacji:
       metody:
-        - etykieta: ['data\s+(?:operacji|transakcji|realizacji|wykonania|księgowania)']
+        # historia rachunku: nagłówki „Data księgowania⏎Data operacji” i pod nimi dwie daty w tej kolejności -> druga (Z46)
+        - regex: '^[ \t]*data\s+(?:za)?ksi[eę]gowania[ \t]*\n[ \t]*data\s+(?:operacji|transakcji)[ \t]*\n(?:[ \t]*[A-ZŁŚŻŹĆ][^\n\d]{1,40}\n){0,6}?[ \t]*(?:\d{1,2}[.\-/]\d{1,2}[.\-/]\d{4}|\d{4}-\d{2}-\d{2})\s+(?P<v>(?:\d{1,2}[.\-/]\d{1,2}[.\-/]\d{4}|\d{4}-\d{2}-\d{2}))'
+          flagi: [i, m]
+        # wydruk kolumnowy: etykiety pod sobą, wartości niżej w tej samej kolejności; „Data operacji” jako pierwsza kolumna
+        - regex: '^[ \t]*data\s+operacji[ \t]*\n(?:[ \t]*[A-ZŁŚŻŹĆ][^\n\d]{2,40}\n){1,6}?[ \t]*(?P<v>\d{1,2}[.\-/]\d{1,2}[.\-/]\d{4})[ \t]*$'
+          flagi: [i, m]
+        # najpierw data operacji/transakcji (gdy obok jest też „Data zlecenia” albo „Data wydruku”)
+        - etykieta: ['data\s+(?:operacji|transakcji)']
+        - etykieta: ['data\s+(?:operacji|transakcji|realizacji|wykonania|(?:za)?ksi[eę]gowania|obci[aą][żz]enia|przelewu|zlecenia)', 'zlecona\s+data\s+(?:wykonania|realizacji)', 'data\s+waluty', 'zrealizowano\s+dnia', 'transaction\s+date|execution\s+date']
+        # etykieta złamana na dwie linie: „Data  2026-03-26⏎wykonania”
+        - regex: '^[ \t]*data[ \t]+(?P<v>\d{4}-\d{2}-\d{2}|\d{1,2}[.\-/]\d{1,2}[.\-/]\d{4})[ \t]*\n[ \t]*(?:wykonania|operacji|transakcji|realizacji|ksi[eę]gowania)\b'
+          flagi: [i, m]
+        # tabela: wiersz nagłówków („Kwota  Data transakcji  Numer…”), wartości w wierszu niżej
+        - regex: 'data\s+(?:transakcji|operacji|realizacji|wykonania)[^\n]*\n[^\n]*?(?P<v>\d{1,2}[.\-/]\d{1,2}[.\-/]\d{4}|\d{4}-\d{2}-\d{2})'
         - regex: 'w\s+dniu\s+(?P<v>[^,]{6,25}?)\s+z\s+rachunku'
           w: list_banku
+        # siatka modelu (przełącznik `siatka_modelu` w config/aplikacja.yaml): pytanie tylko, gdy żadna reguła wyżej
+        # nie dała daty (inny bank, inne etykiety); odpowiedź musi być jedną z dat stojących w dokumencie
+        - llm: 'Przepisz dosłownie datę operacji (wykonania, transakcji) przelewu, tak jak jest zapisana w dokumencie; nie datę księgowania, wydruku ani wystawienia dokumentu. Jeśli jej nie ma: BRAK.'
+          siatka: true
+          kandydaci: '\d{4}[.\-/]\d{1,2}[.\-/]\d{1,2}|\d{1,2}[.\-/]\d{1,2}[.\-/]\d{4}|\d{1,2}[ \t]+[a-ząćęłńóśźż]+[ \t]+\d{4}'
+        # ostatnia deska (OCR zgubił etykietę): pierwsza data w dokumencie; pole jest w każdej referencji przelewu.
+        # Stoi PO siatce modelu: przy włączonej siatce model wybiera datę spośród dat dokumentu (pierwsza data bywa
+        # datą wydruku), przy wyłączonej albo po odpowiedzi BRAK działa jak w samych regułach
+        - regex: '(?<![\d.,/-])(?P<v>\d{1,2}[.\-/]\d{1,2}[.\-/]\d{4}|\d{4}[.\-/]\d{2}[.\-/]\d{2})(?![\d,])'
       normalizuj: [data_iso]
     kwota:
       metody:
+        - regex: 'kwota[ \t]+[^\n]*\b(?:data|numer)\b[^\n]*\n[ \t]*(?P<v>-?\d[\d \u00a0.]*,\d{2})'   # tabela
         - etykieta: ['kwota(?:\s+(?:operacji|przelewu))?', 'warto[śs][ćc]']
         - regex: 'w\s+kwocie\s+(?P<v>[\d\s.,]+)'
+        - regex: '(?P<v>-?\d{1,3}(?:[ \u00a0]\d{3})*,\d{2})[ \t]*(?:PLN|z[łl])\b'   # pierwsza kwota z walutą (wiersz tabeli)
+        # OCR czyta przecinek dziesiętny jako kropkę: „-1 234.00 PLN”
+        - regex: '(?<![\d.,])(?P<v>-?\d{1,3}(?:[ \u00a0]\d{3})*\.\d{2})(?!\d)[ \t]*(?:PLN|z[łl])\b'
+        # siatka modelu: brak etykiety kwoty i brak kwoty z walutą; odpowiedź musi być liczbą stojącą w dokumencie
+        - llm: 'Przepisz dosłownie kwotę przelewu (samą liczbę, tak jak jest zapisana w dokumencie). Jeśli jej nie ma: BRAK.'
+          siatka: true
+          kandydaci: '\d{1,3}(?:[ \u00a0.]\d{3})+(?:,\d{1,2})?|\d+(?:[,.]\d{1,2})?'
+          bez_dat: true   # fragment daty nigdy nie jest kwotą (Z46)
       normalizuj: [kwota]
       typ: float
     na_rachunek:
       metody:
+        # rachunek znany z góry (config/znane_rachunki.yaml: rachunek UZP do wpisu) stoi w dokumencie: to rachunek odbiorcy,
+        # niezależnie od układu wydruku i kolejności odczytu
+        - calosc: true
+          normalizuj: [rachunek_znany_w_tekscie]
+        # wydruk kolumnowy: „Rachunek nadawcy⏎Rachunek odbiorcy⏎…” i oba numery niżej (łamane w komórce)
+        - regex: '^[ \t]*rachunek\s+nadawcy[ \t]*\n[ \t]*rachunek\s+odbiorcy[ \t]*\n(?:[ \t]*[A-ZŁŚŻŹĆ][^\n\d]{1,30}\n){0,3}(?P<v>(?:[ \t]*(?:PL)?[\d \t]+\n){2,6})'
+          flagi: [i, m]
+          normalizuj: [rachunek_drugi]
+        # wydruk „Dane odbiorcy … Numer rachunku …”: odczyt OCR z zgubioną cyfrą poprawia lista znanych rachunków
+        - regex: 'dane\s+odbiorcy[\s\S]{0,300}?numer\s+rachunku[ \t]*\n?[ \t]*(?P<v>(?:PL)?[ \t]?\d[\d \t]{18,40}\d)'
+          flagi: [i]
+          normalizuj: [rachunek_znany]
         - etykieta: ['rachunek\s+(?:odbiorcy|beneficjenta|uznawany)', 'na\s+rachunek']
           linie: 1
+          normalizuj: [rachunek]
         - regex: 'na\s+rachunek\s+nr\s+(?P<v>(?:PL)?[\d \n]{26,45})'
+          normalizuj: [rachunek]
         - regex: '(?P<v>(?:PL)?\d{2}(?: ?\d{4}){6})'
           ktory: 2
-      normalizuj: [rachunek]
+          normalizuj: [rachunek]
+        # siatka modelu: reguły nie znalazły rachunku odbiorcy; odpowiedź musi być rachunkiem stojącym w dokumencie
+        # (porównanie bez PL; wynik jak w pozostałych metodach tego pola: zapis z dokumentu, z PL, gdy tam stoi — Z44)
+        - llm: 'Przepisz dosłownie numer rachunku odbiorcy przelewu (rachunek, na który przelano pieniądze). Jeśli go nie ma: BRAK.'
+          siatka: true
+          kandydaci: '(?:PL[ \t]?)?\d{2}(?:[ \t]?\d{4}){6}(?!\d)'
+          normalizuj: [rachunek]
     numer_transakcji:
       metody:
-        - etykieta: ['numer\s+(?:referencyjny|transakcji)(?:\s+operacji)?', 'nr\s+ref\.?(?:\s+operacji)?', 'identyfikator\s+operacji']
+        # wydruk kolumnowy: „Tytuł⏎Identyfikator transakcji⏎<tytuł, 1–3 linie>⏎<numer>”
+        - regex: '^[ \t]*tytu[łl][ \t]*\n[ \t]*(?:identyfikator|numer)[^\n]*\n(?:[^\n]+\n){1,4}?[ \t]*(?P<v>[A-Z0-9][A-Z0-9/\-]{7,})[ \t]*$'
+          flagi: [i, m]
+        - regex: '^[ \t]*numer[ \t]+(?P<v>[A-Z0-9][A-Z0-9/\-]{3,})[ \t]*\n[ \t]*(?:transakcji|operacji|referencyjny)\b'   # „Numer  305494⏎transakcji”
+          flagi: [i, m]
+        - regex: 'numer\s+referencyjny\s+transakcji[ \t]*\n(?:[^\n]*[ \t])?(?P<v>[A-Z0-9][A-Z0-9/\-]{5,})[ \t]*$'   # tabela / kolumna
+          flagi: [i, m]
+        - etykieta: ['numer\s+referencyjny\s+transakcji', 'numer\s+(?:referencyjny|transakcji|operacji|przelewu|zlecenia|dokumentu)(?:\s+operacji)?', 'nr\.?\s+(?:ref\.?|referencyjny|transakcji|operacji|przelewu|zlecenia)(?:\s+operacji)?', 'identyfikator\s+(?:operacji|transakcji|przelewu|zlecenia)', 'id\s+(?:operacji|transakcji)', 'referencje', 'transaction\s+(?:id|reference|number)']
         - regex: '\b(?P<v>CEN\d{10,})'
       normalizuj: [bez_kropki]
     tytul:
       metody:
+        - regex: '^[ \t]*tytu[łl][ \t]*\n[ \t]*(?:identyfikator|numer)[^\n]*\n(?P<v>(?:[^\n]+\n){1,4}?)[ \t]*[A-Z0-9][A-Z0-9/\-]{7,}[ \t]*$'
+          flagi: [i, m]
         - calosc: true
-          w: tytul
+          w: [tytul, opis, tytul_tresc]
+        # siatka modelu: brak etykiety „Tytuł/Opis/Szczegóły płatności”; odpowiedź musi stać w dokumencie znak w znak
+        # (różnice tylko w odstępach i wielkości liter), wartością jest zapis z dokumentu
+        - llm: 'Przepisz dosłownie tytuł przelewu (opis płatności wpisany przez zleceniodawcę), bez etykiety. Jeśli go nie ma: BRAK.'
+          siatka: true
+          sprawdz: doslownie
       normalizuj: [jedna_linia, bez_cudzyslowow, bez_kropki, bez_cudzyslowow]
     z_rachunku:
       metody:
+        - regex: '^[ \t]*rachunek\s+nadawcy[ \t]*\n[ \t]*rachunek\s+odbiorcy[ \t]*\n(?:[ \t]*[A-ZŁŚŻŹĆ][^\n\d]{1,30}\n){0,3}(?P<v>(?:[ \t]*(?:PL)?[\d \t]+\n){2,6})'
+          flagi: [i, m]
+          normalizuj: [rachunek]
+        # wydruk „Dane nadawcy … Numer rachunku PL…”: referencje tej rodziny zachowują prefiks PL
+        - regex: 'dane\s+nadawcy[\s\S]{0,300}?numer\s+rachunku[\s\S]{0,120}?(?P<v>PL[ \t]?\d{2}(?:[ \t]?\d{4}){6})'
+          normalizuj: [rachunek_pl]
         - etykieta: ['rachunek\s+(?:zleceniodawcy|nadawcy|obci[aą][żz]any|p[łl]atnika)', 'z\s+rachunku']
           linie: 1
+          normalizuj: [rachunek]
         - regex: 'z\s+rachunku\s+nr\s+(?P<v>(?:PL)?[\d \n]{26,45})'
+          normalizuj: [rachunek]
+        # w dokumencie stoi rachunek znany z góry (odbiorca) i dokładnie jeden inny: ten inny to nadawca
+        - calosc: true
+          normalizuj: [rachunek_inny_niz_znany]
         - regex: '(?P<v>(?:PL)?\d{2}(?: ?\d{4}){6})'
           ktory: 1
-      normalizuj: [rachunek]
+          normalizuj: [rachunek]

@@ -1,11 +1,14 @@
-# Ustawienia ewaluatora F1 (metoda UZP z Discorda, 21.11 11:26).
-# Pola „długie” (po nazwie liścia JSON) zaliczają się przy podobieństwie >= prog_podobienstwa.
-# Pozostałe pola (identyfikatory, daty, kwoty, liczby) muszą zgadzać się dokładnie po normalizacji.
+# Ustawienia ewaluatora F1 (metoda UZP z Discorda, 21.11 11:26 i 13:27).
+# Pola „długie” zaliczają się przy podobieństwie >= prog_podobienstwa. Lista UZP, jako ścieżki pól
+# ([] = dowolny element listy). Wszystkie pozostałe pola muszą zgadzać się dokładnie
+# (także czynnosc_opis i mocodawca[].data.nazwa).
 prog_podobienstwa: 0.8
 pola_dlugie:
-  - nazwa            # nazwy firm, zamawiających, kancelarii
-  - tytul            # tytuł zamówienia i tytuł przelewu
-  - czynnosc_opis
+  - Odwolujacy[].pelnomocnik.nazwa   # nazwa firmy pełnomocnika
+  - przelew_bankowy.tytul            # tytuł przelewu
+  - Odwolujacy[].nazwa               # nazwa Odwołującego
+  - Zamawiajacy[].nazwa              # nazwa Zamawiającego
+  - ZamowieniePubliczne.tytul        # tytuł zamówienia
 # Referencja UZP nazywa plik inaczej niż PDF.
 aliasy_plikow:
   potwierdzenie_przelewu: przelew

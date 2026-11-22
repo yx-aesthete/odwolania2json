@@ -10,3 +10,11 @@ output/*
 !output/.gitkeep
 .cache/
 .pytest_cache/
+audit/
+!.env.example
+*.egg-info/
+.coverage
+
+# pozostałości po nakładaniu łatek
+*.orig
+*.rej

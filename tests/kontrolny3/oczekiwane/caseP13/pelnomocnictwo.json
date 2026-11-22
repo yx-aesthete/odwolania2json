@@ -1,0 +1,24 @@
+{
+  "mocodawca": [
+    {
+      "data": {
+        "imie_nazwisko": null,
+        "krs": "9993586491",
+        "nazwa": "Infocom Systemy Informatyczne S.A.",
+        "nip": "9995326275",
+        "typ": "osoba_prawna"
+      },
+      "podpisujacy": [
+        {
+          "imie_nazwisko": "Wojciech Jeleń"
+        }
+      ]
+    }
+  ],
+  "pelnomocnicy": [
+    {
+      "imie_nazwisko": "Marta Gołąb",
+      "pesel": "78110557529"
+    }
+  ]
+}

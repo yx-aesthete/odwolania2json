@@ -1,0 +1,24 @@
+{
+  "mocodawca": [
+    {
+      "data": {
+        "imie_nazwisko": null,
+        "krs": "9990457506",
+        "nazwa": "Hydro-Kop Studnie sp. z o.o.",
+        "nip": "9996570729",
+        "typ": "osoba_prawna"
+      },
+      "podpisujacy": [
+        {
+          "imie_nazwisko": "Filomena Brzęczyszczyk"
+        }
+      ]
+    }
+  ],
+  "pelnomocnicy": [
+    {
+      "imie_nazwisko": "Adam Nowak",
+      "pesel": "64051215503"
+    }
+  ]
+}

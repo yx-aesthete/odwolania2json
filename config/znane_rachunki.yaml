@@ -1,0 +1,7 @@
+# Rachunki znane z góry (normalizator `rachunek_znany`): gdy OCR zgubi lub przekręci kilka cyfr rachunku
+# (np. „60 1010 10081 3622 3100 0000” zamiast 26 cyfr), a odczyt różni się od znanego rachunku najwyżej o
+# `max_roznica` znaków (odległość edycyjna na cyfrach), wynik to znany rachunek. Poprawny 26-cyfrowy odczyt
+# zostaje bez zmian. Dopisanie rachunku = jedna linia.
+max_roznica: 3
+rachunki:
+  - "60101010100081362231000000"   # Urząd Zamówień Publicznych, NBP: rachunek do wpisu od odwołania (uzp.gov.pl)

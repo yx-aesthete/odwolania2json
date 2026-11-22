@@ -4,131 +4,29 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Odwołania2json</title>
-<style>
-:root {
-  --bg: #f6f7f9; --panel: #ffffff; --text: #1b1f24; --muted: #5d6673; --line: #dde1e6;
-  --accent: #1f5fbf; --accent-soft: #e6eefb; --ok: #1d7a46; --ok-soft: #e3f4ea; --warn: #9a5b00; --warn-soft: #fdf1dc;
-  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-}
-@media (prefers-color-scheme: dark) {
-  :root { --bg: #111418; --panel: #1a1e24; --text: #e6e9ed; --muted: #9aa4b1; --line: #2c323a;
-    --accent: #7aa7ff; --accent-soft: #1d2a40; --ok: #5fd08f; --ok-soft: #173325; --warn: #f0b45a; --warn-soft: #3a2a12; }
-}
-* { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
-main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 64px; }
-h1 { font-size: 22px; margin: 0 0 4px; }
-.lead { color: var(--muted); margin: 0 0 20px; }
-.drop { display: block; border: 2px dashed var(--line); border-radius: 12px; background: var(--panel); padding: 28px 16px; text-align: center; cursor: pointer; }
-.drop.over { border-color: var(--accent); background: var(--accent-soft); }
-.drop strong { color: var(--accent); }
-.klasy { margin: 10px 0 0; color: var(--muted); font-size: 13px; }
-.karta { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; margin-top: 16px; overflow: hidden; }
-.naglowek { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--line); }
-.naglowek .nazwa { font-weight: 600; word-break: break-all; }
-.znacznik { font-size: 12px; padding: 2px 8px; border-radius: 99px; background: var(--ok-soft); color: var(--ok); font-weight: 600; }
-.znacznik.obcy { background: var(--warn-soft); color: var(--warn); }
-.akcje { margin-left: auto; display: flex; gap: 8px; }
-button, .btn { font: inherit; font-size: 13px; padding: 5px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel); color: var(--text); cursor: pointer; text-decoration: none; }
-button:hover, .btn:hover { border-color: var(--accent); }
-.tabela { width: 100%; border-collapse: collapse; font-size: 13.5px; }
-.tabela th, .tabela td { text-align: left; padding: 7px 16px; border-bottom: 1px solid var(--line); vertical-align: top; }
-.tabela th { color: var(--muted); font-weight: 500; font-size: 12px; text-transform: uppercase; letter-spacing: .03em; }
-.pole { font-family: var(--mono); font-size: 12.5px; color: var(--muted); white-space: nowrap; }
-.wartosc { font-weight: 500; word-break: break-word; }
-.null { color: var(--muted); font-style: italic; font-weight: 400; }
-.cytat { font-family: var(--mono); font-size: 12px; color: var(--muted); white-space: pre-wrap; word-break: break-word; }
-.meta { font-size: 11.5px; color: var(--muted); }
-pre { margin: 0; padding: 12px 16px; font: 12.5px/1.45 var(--mono); overflow-x: auto; background: var(--bg); }
-.ukryty { display: none; }
-.blad { padding: 12px 16px; color: var(--warn); }
-.wczytywanie { margin-top: 16px; color: var(--muted); }
-@media (max-width: 700px) {
-  .tabela thead { display: none; }
-  .tabela tr { display: block; border-bottom: 1px solid var(--line); padding: 6px 0; }
-  .tabela td { display: block; border: 0; padding: 2px 16px; }
-  .pole { white-space: normal; }
-  .akcje { margin-left: 0; }
-}
-</style>
+<link rel="stylesheet" href="static/styl.css">
 </head>
 <body>
-<main>
-  <h1>Odwołania2json</h1>
-  <p class="lead">Wgraj dokumenty sprawy odwoławczej (PDF). Aplikacja rozpozna typ dokumentu, wyodrębni dane do JSON w formacie UZP i pokaże, z którego fragmentu tekstu pochodzi każda wartość.</p>
-  <label class="drop" id="drop">
-    <input type="file" id="pliki" accept="application/pdf,.pdf" multiple hidden>
-    <div><strong>Wybierz pliki PDF</strong> albo upuść je tutaj</div>
-    <div class="klasy" id="klasy">Ładowanie listy klas…</div>
-  </label>
-  <div id="stan" class="wczytywanie"></div>
-  <div id="wyniki"></div>
-</main>
-<script>
-const $ = (s) => document.querySelector(s);
-const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
-
-fetch("api/klasy").then((r) => r.json()).then((k) => {
-  $("#klasy").textContent = "Klasy dokumentów (z plików config/klasy/*.yaml): " + k.map((x) => x.nazwa).join(", ");
-}).catch(() => { $("#klasy").textContent = ""; });
-
-function splaszcz(obj, prefiks = "", wynik = []) {
-  if (Array.isArray(obj)) obj.forEach((v, i) => splaszcz(v, `${prefiks}[${i}]`, wynik));
-  else if (obj && typeof obj === "object") Object.entries(obj).forEach(([k, v]) => splaszcz(v, prefiks ? `${prefiks}.${k}` : k, wynik));
-  else wynik.push([prefiks, obj]);
-  return wynik;
-}
-
-function karta(w) {
-  const el = document.createElement("section");
-  el.className = "karta";
-  if (w.blad) { el.innerHTML = `<div class="naglowek"><span class="nazwa">${esc(w.plik)}</span></div><div class="blad">${esc(w.blad)}</div>`; return el; }
-  const tekstJson = w.json ? JSON.stringify(w.json, null, 2) : "";
-  const dowody = Object.fromEntries((w.audyt.pola || []).map((d) => [d.pole, d]));
-  const wiersze = w.json ? splaszcz(w.json).map(([pole, v]) => {
-    const d = dowody[pole];
-    const zrodlo = d ? `<div class="cytat">${esc(d.cytat ?? "")}</div><div class="meta">strona ${d.strona ?? "?"} · reguła ${esc(d.metoda)}</div>` : `<span class="meta">brak w dokumencie</span>`;
-    const wart = v === null ? `<span class="null">null</span>` : esc(v);
-    return `<tr><td class="pole">${esc(pole)}</td><td class="wartosc">${wart}</td><td>${zrodlo}</td></tr>`;
-  }).join("") : "";
-  const url = URL.createObjectURL(new Blob([tekstJson], {type: "application/json"}));
-  el.innerHTML = `
-    <div class="naglowek">
-      <span class="nazwa">${esc(w.plik)}</span>
-      <span class="znacznik ${w.klasa ? "" : "obcy"}">${w.klasa ? esc(w.klasa) : "dokument spoza klas (pusty JSON)"}</span>
-      <span class="akcje">
-        <button type="button" data-przelacz>JSON</button>
-        <a class="btn" href="${url}" download="${esc(w.json_nazwa)}">Pobierz ${esc(w.json_nazwa)}</a>
-      </span>
-    </div>
-    ${w.json ? `<table class="tabela"><thead><tr><th>Pole</th><th>Wartość</th><th>Źródło w dokumencie</th></tr></thead><tbody>${wiersze}</tbody></table>` : ""}
-    <pre class="ukryty">${esc(tekstJson || "(pusty plik)")}</pre>`;
-  el.querySelector("[data-przelacz]").addEventListener("click", () => el.querySelector("pre").classList.toggle("ukryty"));
-  return el;
-}
-
-async function wyslij(pliki) {
-  if (!pliki.length) return;
-  const fd = new FormData();
-  [...pliki].forEach((p) => fd.append("pliki", p));
-  $("#stan").textContent = `Przetwarzam ${pliki.length} plik(ów)…`;
-  $("#wyniki").innerHTML = "";
-  try {
-    const r = await fetch("api/przetworz", {method: "POST", body: fd});
-    if (!r.ok) throw new Error((await r.json()).detail || r.statusText);
-    const wyniki = await r.json();
-    $("#stan").textContent = "";
-    wyniki.forEach((w) => $("#wyniki").appendChild(karta(w)));
-  } catch (e) {
-    $("#stan").textContent = "Błąd: " + e.message;
-  }
-}
-
-const drop = $("#drop");
-$("#pliki").addEventListener("change", (e) => wyslij(e.target.files));
-["dragenter", "dragover"].forEach((t) => drop.addEventListener(t, (e) => { e.preventDefault(); drop.classList.add("over"); }));
-["dragleave", "drop"].forEach((t) => drop.addEventListener(t, (e) => { e.preventDefault(); drop.classList.remove("over"); }));
-drop.addEventListener("drop", (e) => wyslij(e.dataTransfer.files));
-</script>
+<header>
+  <div class="szer pasek">
+    <p class="marka">Odwołania2json</p>
+    <nav class="glowna" aria-label="Główna"><a href="./" aria-current="page">Podgląd sprawy</a><a href="jak-to-dziala">Jak to działa</a></nav>
+    <span class="opis" id="stan-sprawy">Dokumenty sprawy odwoławczej KIO na JSON w formacie UZP</span>
+    <span class="spacja"></span>
+    <span id="akcje-sprawy"></span>
+    <label class="btn" id="przycisk-wgraj"><span id="etykieta-wgraj">Wgraj PDF-y sprawy</span><input id="pliki" class="sr" type="file" multiple accept=".pdf,application/pdf"></label>
+  </div>
+  <nav class="szer pliki" id="lista" aria-label="Pliki sprawy" hidden></nav>
+</header>
+<div class="szer">
+  <div id="komunikat"></div>
+  <section id="skrot" class="skrot" aria-labelledby="skrot-h" hidden></section>
+  <main id="main" tabindex="-1"></main>
+</div>
+<footer class="szer">
+  <p>Wgrane PDF-y leżą na serwerze tylko na czas pracy ze sprawą (najwyżej godzinę) i znikają po przycisku „Zamknij sprawę”; wyniki (JSON i cytaty pól) zostają zapisane na serwerze w katalogu wyników, tak jak przy uruchomieniu wsadowym. Gdy włączony jest model językowy, tekst pism trafia do Scaleway Generative APIs (serwery w UE, Paryż): <a href="https://www.scaleway.com/en/docs/generative-apis/reference-content/data-privacy/" rel="noopener" target="_blank">zasady prywatności</a>. Integracja z innymi systemami: <a href="docs">opis API</a>.</p>
+</footer>
+<script src="static/skrot.js"></script>
+<script src="static/app.js"></script>
 </body>
 </html>

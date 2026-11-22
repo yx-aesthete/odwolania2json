@@ -1,0 +1,24 @@
+{
+  "mocodawca": [
+    {
+      "data": {
+        "imie_nazwisko": null,
+        "krs": "9998030529",
+        "nazwa": "Instalbud Kraków S.A.",
+        "nip": "9998539014",
+        "typ": "osoba_prawna"
+      },
+      "podpisujacy": [
+        {
+          "imie_nazwisko": "Edward Kozioł"
+        }
+      ]
+    }
+  ],
+  "pelnomocnicy": [
+    {
+      "imie_nazwisko": "Filomena Brzęczyszczyk",
+      "pesel": "77050276626"
+    }
+  ]
+}

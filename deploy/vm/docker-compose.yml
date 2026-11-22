@@ -1,0 +1,16 @@
+# Ocena UZP na maszynie wirtualnej (VM.md UZP, 22.11): tajny zbiór w /opt/solution/input, wyniki w /opt/solution/output,
+# klucze w /opt/solution/.env. Obraz z Dockerfile aplikacji (Python 3.13 w kontenerze; na VM jest 3.12).
+# Uruchomienie: docker compose -f /opt/solution/app/deploy/vm/docker-compose.yml run --rm odwolania2json
+name: odwolania2json-vm
+services:
+  odwolania2json:
+    build: ../..
+    image: odwolania2json:vm
+    env_file:
+      - path: ${SOLUTION_DIR:-/opt/solution}/.env
+        required: false   # bez klucza: same reguły (skany bez OCR dają {}), program i tak kończy się i zapisuje pliki
+    volumes:
+      - ${SOLUTION_DIR:-/opt/solution}/input:/app/input:ro
+      - ${SOLUTION_DIR:-/opt/solution}/output:/app/output
+      - ${SOLUTION_DIR:-/opt/solution}/audit:/app/audit
+    command: ["--input", "/app/input", "--output", "/app/output", "--audit", "/app/audit"]
