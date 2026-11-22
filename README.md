@@ -102,6 +102,6 @@ Jeden plik YAML na klasę. Instrukcja i lista klocków: `docs/NOWA-KLASA.md`. Bu
 
 `ZRODLA-I-CYTOWANIA.md`.
 
-## Licencja
+## Prawa autorskie
 
-Kod aplikacji: Apache License 2.0 (plik `LICENSE`). Wszystkie zależności i modele są otwarte (`ZRODLA-I-CYTOWANIA.md`).
+Wszelkie prawa zastrzeżone. Autor jest twórcą rozwiązania w rozumieniu ustawy o prawie autorskim; autorskie prawa majątkowe mogą zostać przeniesione na Urząd Zamówień Publicznych zgodnie z § 4 regulaminu zadania. Użyte biblioteki i modele są otwarte (licencje w `ZRODLA-I-CYTOWANIA.md`).

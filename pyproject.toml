@@ -6,7 +6,6 @@ build-backend = "setuptools.build_meta"
 name = "odwolania2json"
 version = "0.1.0"
 requires-python = ">=3.13"
-license = "Apache-2.0"
 
 [tool.setuptools.packages.find]
 where = ["src"]
