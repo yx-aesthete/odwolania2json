@@ -1,4 +1,5 @@
 """Klasa opisowa: typ dokumentu opisany w YAML samymi słowami (config/klasy-demo/odpowiedz_na_odwolanie.yaml)."""
+from conftest import wymaga_kontrolnego
 import json
 import re
 from pathlib import Path
@@ -110,6 +111,7 @@ def test_polecenie_z_opisow_i_zly_typ():
         polecenie({"pola": {"a": {"opis": "x", "typ": "regex"}}})
 
 
+@wymaga_kontrolnego
 def test_klasa_demo_nie_przejmuje_dokumentow_uzp():
     """Przy włączonych klasach demo zbiór kontrolny ma te same klasy co bez nich (dokumenty obce dalej {})."""
     zwykly = Potok(KORZEN / "config/klasy", uzyj_llm=False)

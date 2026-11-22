@@ -10,7 +10,10 @@ DOBRY = ("Warszawa, 3 marca 2026 r.\nPEŁNOMOCNICTWO\nAlfa sp. z o.o. udziela pe
 
 def _skan(tmp_path, obrot: int) -> Path:
     """PDF bez warstwy tekstowej z obrazem prawdziwej strony (opcjonalnie obróconej)."""
-    pdf = next((KORZEN / "tests/kontrolny/input").rglob("pelnomocnictwo*.pdf"))
+    from conftest import LINIE_PRZELEWU, pdf_tekstowy
+    # linie na całą szerokość strony, jak w prawdziwym piśmie (bez danych spoza repo)
+    linie = [(l + " ") * 3 for l in LINIE_PRZELEWU * 2]
+    pdf = pdf_tekstowy(tmp_path / f"tekst_{obrot}.pdf", [l[:95] for l in linie])
     obraz = pdftext._obraz_strony(pdf, 0, 100).convert("RGB").rotate(obrot, expand=True)
     wyj = tmp_path / f"skan_{obrot}.pdf"
     obraz.save(wyj, "PDF", resolution=100)

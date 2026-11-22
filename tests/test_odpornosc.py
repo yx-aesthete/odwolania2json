@@ -154,11 +154,12 @@ def test_jedna_linia_bez_anonimizacji_przecinka_i_etykiety_adresu():
     assert jedna_linia("Gmina Testowa ■■■") == "Gmina Testowa"
 
 
-def test_pdf_ktorego_pypdf_nie_otworzy_czytany_przez_pdfium(monkeypatch):
+def test_pdf_ktorego_pypdf_nie_otworzy_czytany_przez_pdfium(monkeypatch, tmp_path):
     """Z40: np. PDF szyfrowany AES bez pakietu cryptography — tekst z PDFium, nie pusty dokument."""
     from pathlib import Path
     from odwolania2json import pdftext
-    pdf = next((Path(__file__).parent / "kontrolny/input").rglob("przelew*.pdf"))
+    from conftest import LINIE_PRZELEWU, pdf_tekstowy
+    pdf = pdf_tekstowy(tmp_path / "przelew.pdf", LINIE_PRZELEWU)
 
     def zly_reader(*a, **k):
         raise RuntimeError("cryptography>=3.1 is required for AES algorithm")

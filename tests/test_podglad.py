@@ -14,6 +14,10 @@ KORZEN = Path(__file__).resolve().parents[1]
 SPRAWA = KORZEN / "tests/kontrolny/input/case06"
 ODWOLANIE = SPRAWA / "odwolanie_nr_6.pdf"
 
+from conftest import wymaga_kontrolnego
+
+pytestmark = wymaga_kontrolnego   # pisma UZP z tests/kontrolny (poza eksportem)
+
 
 def test_zwarty_pomija_biale_znaki_i_myslniki():
     assert podglad.zwarty("NIP 999-\n850-03-77") == "nip9998500377"

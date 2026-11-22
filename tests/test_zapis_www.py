@@ -8,6 +8,10 @@ from fastapi.testclient import TestClient
 KORZEN = Path(__file__).resolve().parents[1]
 CASE06 = KORZEN / "tests" / "kontrolny" / "input" / "case06"
 
+from conftest import wymaga_kontrolnego
+
+pytestmark = wymaga_kontrolnego   # pisma UZP z tests/kontrolny (poza eksportem)
+
 
 def test_wgranie_zapisuje_do_output(monkeypatch):
     monkeypatch.setenv("BEZ_LLM", "1")

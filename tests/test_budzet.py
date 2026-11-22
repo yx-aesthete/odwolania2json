@@ -43,11 +43,8 @@ def test_kolejnosc_tekstowe_przed_skanami(tmp_path):
     w = PdfWriter()
     w.add_blank_page(100, 100)
     w.write(str(pusty))
-    import shutil
-    from pathlib import Path
-    tekstowy = next((Path(__file__).parent / "kontrolny/input").rglob("*.pdf"))
-    t = tmp_path / "z_tekst.pdf"
-    shutil.copy(tekstowy, t)
+    from conftest import LINIE_PRZELEWU, pdf_tekstowy
+    t = pdf_tekstowy(tmp_path / "z_tekst.pdf", LINIE_PRZELEWU)   # bez danych spoza repo (eksport publiczny)
     assert kolejnosc([pusty, t]) == [t, pusty]   # tekst przed skanem
 
 
