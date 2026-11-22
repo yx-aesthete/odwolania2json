@@ -104,4 +104,4 @@ Jeden plik YAML na klasę. Instrukcja i lista klocków: `docs/NOWA-KLASA.md`. Bu
 
 ## Prawa autorskie
 
-Wszelkie prawa zastrzeżone. Autor jest twórcą rozwiązania w rozumieniu ustawy o prawie autorskim; autorskie prawa majątkowe mogą zostać przeniesione na Urząd Zamówień Publicznych zgodnie z § 4 regulaminu zadania. Użyte biblioteki i modele są otwarte (licencje w `ZRODLA-I-CYTOWANIA.md`).
+Wszelkie prawa zastrzeżone. Autor jest twórcą rozwiązania w rozumieniu ustawy o prawie autorskim; autorskie prawa majątkowe mogą zostać przeniesione na Urząd Zamówień Publicznych zgodnie z § 4 regulaminu zadania. Warunek zadania „wyłącznie komponenty open source” jest spełniony: wszystkie użyte biblioteki i oba modele językowe mają licencje otwarte (lista w `ZRODLA-I-CYTOWANIA.md`).
