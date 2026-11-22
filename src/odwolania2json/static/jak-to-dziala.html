@@ -84,7 +84,7 @@ ul.lista { margin: 12px 0 0; padding-left: 1.2em; display: flex; flex-direction:
 <main id="tresc">
   <h1>Jak działa Odwołania2json</h1>
   <p class="wstep">Program bierze PDF-y sprawy odwoławczej KIO i rozpoznaje, czy to odwołanie, pełnomocnictwo czy potwierdzenie przelewu. Dane zapisuje w formacie UZP (plik JSON). Przy każdej wartości zostaje cytat z dokumentu i numer strony, żeby można ją było sprawdzić.</p>
-  <p class="stan">Liczby: stan 21.11.2026, ok. 20:30.</p>
+  <p class="stan">Liczby: wersja zgłoszona do oceny, pomiar 22.11.2026.</p>
 
   <nav class="spis" aria-label="Na tej stronie">
     <ul>
@@ -103,7 +103,7 @@ ul.lista { margin: 12px 0 0; padding-left: 1.2em; display: flex; flex-direction:
     <ol class="etapy" role="list">
       <li>
         <div class="opis"><h3>1. Wejście</h3><p>Folder <code>input/&lt;sprawa&gt;/</code> z PDF-ami albo wgranie w przeglądarce. Nazwy plików nie mają znaczenia. <span class="znak">na miejscu</span></p></div>
-        <div class="liczba"><b>do 10 plików</b><span>i 10 MB na jedno wgranie w przeglądarce</span></div>
+        <div class="liczba"><b>150 PDF w ok. 5 min</b><span>z folderu bez limitu liczby plików; w przeglądarce publicznej 10 plików i 10 MB na wgranie</span></div>
       </li>
       <li>
         <div class="opis"><h3>2. Tekst z PDF albo OCR</h3><p>PDF z tekstem czytamy wprost <span class="znak">na miejscu</span>. Obraz strony bez tekstu, czyli skanu, wysyłamy do modelu rozpoznawania tekstu (OCR), który przepisuje tekst strony <span class="znak siec">sieć, UE</span>. Bez sieci PDF-y z tekstem działają na samych regułach, a skany wymagają OCR przez sieć (lokalny program OCR tylko, jeśli ktoś go zainstaluje).</p></div>
@@ -118,8 +118,8 @@ ul.lista { margin: 12px 0 0; padding-left: 1.2em; display: flex; flex-direction:
         <div class="liczba"><b>36 pól</b><span>w typowej sprawie: odwołanie 22, pełnomocnictwo 8, przelew 6</span></div>
       </li>
       <li>
-        <div class="opis"><h3>5. Model poprawia pola opisowe</h3><p>Jedno pytanie na dokument: nazwy stron, osoby, podpisujący, pełnomocnicy w mianowniku. Model dostaje tekst dokumentu, więc także zawarte w nim dane osobowe. Propozycja modelu przechodzi tylko wtedy, gdy jej słowa (rdzenie) występują w tekście dokumentu: model może zmienić tylko końcówki. Identyfikatory (KRS, NIP, PESEL, rachunki) zawsze pochodzą z reguł. <span class="znak siec">sieć, UE</span></p></div>
-        <div class="liczba"><b>1 pytanie</b><span>na dokument</span></div>
+        <div class="opis"><h3>5. Model tylko tam, gdzie reguła nie wystarcza</h3><p>Model proponuje pola opisowe (nazwy stron, osoby, podpisujący, pełnomocnicy w mianowniku) i uzupełnia pola, których reguła nie znalazła. W długich pismach kancelarii rozstrzyga rodzaj zaskarżonej czynności z zamkniętej listy 12 kodów UZP; w pismach w układzie UZP nie jest o to pytany. Model dostaje tekst dokumentu, więc także zawarte w nim dane osobowe. Propozycja modelu przechodzi tylko wtedy, gdy stoi w tekście dokumentu (dla nazw i osób: rdzenie słów) albo jest pozycją słownika UZP; inaczej zostaje wynik reguł. Identyfikatory (KRS, NIP, PESEL, rachunki) zawsze pochodzą z reguł. <span class="znak siec">sieć, UE</span></p></div>
+        <div class="liczba"><b>ok. 2 pytania</b><span>na sprawę</span></div>
       </li>
       <li>
         <div class="opis"><h3>6. JSON UZP i ślad źródła</h3><p><code>output/&lt;sprawa&gt;/&lt;nazwa&gt;.json</code> ściśle według wzoru UZP. Obok, w <code>audit/</code>, dla każdego pola cytat, strona i sposób wyciągnięcia. <span class="znak">na miejscu</span></p></div>
@@ -168,15 +168,15 @@ ul.lista { margin: 12px 0 0; padding-left: 1.2em; display: flex; flex-direction:
         <caption>Najpierw zbiory przygotowane bez wglądu w reguły, potem zbiór kontrolny testera, na końcu dane, na których zbudowano reguły.</caption>
         <thead><tr><th scope="col">Zbiór</th><th scope="col" style="text-align:right">F1</th></tr></thead>
         <tbody>
-          <tr><th scope="row">Niezależny zbiór w stylu danych UZP<span class="drobne">8 spraw, 26 PDF</span></th><td class="f1">0,993</td></tr>
-          <tr><th scope="row">Skany UZP, sprawy nieużywane przy strojeniu<span class="drobne">9 dokumentów, OCR: Mistral Small przez sieć, 2 przebiegi z tym samym wynikiem</span></th><td class="f1">0,95</td></tr>
-          <tr><th scope="row">Niezależny zbiór w stylu pism kancelarii<span class="drobne">8 spraw, 28 PDF</span></th><td class="f1">0,92–0,94</td></tr>
-          <tr><th scope="row">Zbiór kontrolny testera: nietypowe układy<span class="drobne">[N] spraw, tabela w nagłówku, inne etykiety stron; do wykrywania regresji</span></th><td class="f1">0,83–0,89</td></tr>
+          <tr><th scope="row">Niezależny zbiór w stylu danych UZP<span class="drobne">8 spraw, 26 PDF</span></th><td class="f1">0,997</td></tr>
+          <tr><th scope="row">Skany UZP, sprawy nieużywane przy strojeniu<span class="drobne">9 dokumentów, OCR: Mistral Small przez sieć, obrót stron 90/180/270°</span></th><td class="f1">0,988</td></tr>
+          <tr><th scope="row">Niezależny zbiór w stylu pism kancelarii<span class="drobne">8 spraw, 28 PDF</span></th><td class="f1">0,978</td></tr>
+          <tr><th scope="row">Zbiór kontrolny testera: nietypowe układy<span class="drobne">29 PDF, tabela w nagłówku, inne etykiety stron; do wykrywania regresji</span></th><td class="f1">0,922</td></tr>
           <tr class="trening"><th scope="row">Dane treningowe UZP: 60 spraw i pisma innych rodzajów<span class="drobne">na tych danych powstały reguły, więc to nie jest prognoza</span></th><td class="f1">1,000</td></tr>
         </tbody>
       </table>
     </div>
-    <p class="notka" style="margin-top:10px">Zakres zastąpimy jedną liczbą po ostatnim pomiarze: [DO PODMIANY].</p>
+    <p class="notka" style="margin-top:10px">Pisma innych rodzajów (ukryty zbiór): 14 z 15 poprawnie jako {}. 150 PDF w ok. 5 min (limit UZP 45 min).</p>
   </section>
 
   <section id="modele" aria-labelledby="h-modele">
@@ -191,7 +191,7 @@ ul.lista { margin: 12px 0 0; padding-left: 1.2em; display: flex; flex-direction:
         </tbody>
       </table>
     </div>
-    <p class="notka" style="margin-top:10px">Najmniejsze modele, które dały najwyższe F1: większy model (397 mld) nie był lepszy.</p>
+    <p class="notka" style="margin-top:10px">Wybrane dla najwyższego F1. Sprawdziłem też mniejsze modele (3–14 mld): na pismach w stylu UZP wynik w granicach rozrzutu, na pełnomocnictwach wyraźnie słabszy. Model zmienia się jedną linią w pliku .env.</p>
   </section>
 
   <section id="wdrozenie" aria-labelledby="h-wdrozenie">
@@ -203,7 +203,7 @@ ul.lista { margin: 12px 0 0; padding-left: 1.2em; display: flex; flex-direction:
         <ul class="lista">
           <li>Uruchomienie jedną komendą albo jako kontener, wsadowo albo przez HTTP. Integracja przez HTTP: <code>/api/sprawa</code> (pliki przetwarzane w tle, z postępem) albo <code>/api/przetworz</code> (wynik w jednym żądaniu). Opis tras: <a href="/docs">/docs</a>.</li>
           <li>Błąd jednego pliku nie zatrzymuje reszty sprawy.</li>
-          <li>Po 3 kolejnych błędach usług w UE model i OCR przez sieć wyłączają się do końca przebiegu. PDF-y z tekstem idą dalej na samych regułach.</li>
+          <li>Po odmowie dostępu (401/403/404) albo 3 kolejnych błędach sieci model i OCR przez sieć wyłączają się do końca przebiegu. Limit zapytań u dostawcy (429) oznacza czekanie i ponowienie, nie wyłączenie. PDF-y z tekstem idą dalej na samych regułach.</li>
           <li>Pismo innego rodzaju: plik <code>{}</code>, plik pusty albo brak pliku, do wyboru w konfiguracji.</li>
           <li>Przez HTTP najwyżej 10 plików i 10 MB na jedno wgranie. Wgrane PDF-y są na serwerze do 60 minut albo do przycisku „Zamknij sprawę”, potem usuwane. Wyniki (także z podglądu WWW, w <code>output/&lt;sprawa&gt;/</code>) i <code>audit/</code> zostają na dysku i zawierają dane z pism.</li>
           <li>Każdą zmianę reguł mierzymy jedną komendą na zbiorach testowych.</li>
@@ -212,7 +212,7 @@ ul.lista { margin: 12px 0 0; padding-left: 1.2em; display: flex; flex-direction:
       <div>
         <h3>Do ustalenia przy wdrożeniu</h3>
         <ul class="lista">
-          <li>Logowanie i HTTPS: prototyp nie ma logowania i słucha tylko lokalnie. W urzędzie stoi za bramą logowania urzędu.</li>
+          <li>Logowanie i HTTPS: publiczny prototyp nie ma logowania (chronią go limity wgrań i dzienny limit zapytań). W urzędzie stoi za bramą logowania urzędu.</li>
           <li>Umowa powierzenia danych z dostawcą, jeśli usługi w UE (OCR i model) mają być włączone.</li>
           <li>Kolejka dla dużych partii i monitorowanie czasu przetwarzania (dziś: pliki przetwarzane w tle, z postępem).</li>
           <li>Jak długo przechowywać <code>output/</code> i <code>audit/</code> i kto ma do nich dostęp.</li>
