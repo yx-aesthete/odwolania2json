@@ -76,7 +76,7 @@ Skan (OCR): `docs/zrzuty/03-skan-ocr.png`, dokument obcy z wynikiem `{}`: `docs/
 
 ## Model językowy
 
-**Użyty model: Gemma 4 26B-A4B Instruct** (`gemma-4-26b-a4b-it`, Google, licencja Apache-2.0, otwarte wagi, 26 mld parametrów w architekturze MoE) przez **Scaleway Generative APIs** (Francja, region Paryż, API zgodne z OpenAI). Wybrany z 7 modeli otwartych wag jako najmniejszy bez straty jakości (`docs/WYNIKI.md`).
+**Użyty model: Gemma 4 26B-A4B Instruct** (`gemma-4-26b-a4b-it`, Google, licencja Apache-2.0, otwarte wagi, 26 mld parametrów w architekturze MoE) przez **Scaleway Generative APIs** (Francja, region Paryż, API zgodne z OpenAI). Wybrany jako model z najwyższym albo prawie najwyższym F1 na wszystkich zbiorach; porównanie z mniejszymi modelami w `docs/WYNIKI.md`.
 
 **Dlaczego Gemma i co dają mniejsze modele.** Większość pracy robią reguły z plików YAML. Gdy model ekstrakcji nie działa (np. zły klucz), program dalej oddaje wynik: na zbiorze niezależny A, styl UZP, F1 0,991 zamiast 0,997; na pismach kancelarii 0,900 zamiast 0,978; na nietypowych układach 0,695 zamiast 0,922; na skanach UZP nieoglądanych 0,964 zamiast 0,988. Sprawdziliśmy też małe modele otwartych wag (pomiar porównawczy u dostawcy testowego, 21/22.11, na wcześniejszej wersji kodu b1e0630, OCR w każdym wariancie ten sam: Mistral Small 3.2 24B; na wersji zgłoszenia Gemma ma na tym zbiorze 0,979). Na zbiorze niezależny B, 100 PDF, styl UZP: same reguły 0,960, Gemma 4 26B-A4B 0,970, Qwen 3.5 9B 0,966, Ministral 3 3B 0,963. Nawet model 3 mld parametrów trzyma od 0,88 do 0,99 (na nietypowych układach 0,88, tyle co Gemma), a Qwen 3.5 9B jest średnio ok. 0,005 F1 za Gemmą; małe modele tracą głównie na pełnomocnictwach (nazwa i typ mocodawcy, osoby). Gemma dała najwyższe albo prawie najwyższe F1 w każdym zbiorze, dlatego jest w zgłoszeniu. Model zmienia się jedną linią w `.env` (`LLM_MODEL`), bez zmian w kodzie, więc mniejszy wariant można uruchomić samemu. Czas: 150 PDF w 4,5–5,5 min, przy serwerze modelu spowolnionym o 20 s na zapytanie w 19 min, przy limitach dostawcy w 21 min (limit UZP 45 min). Pełne tabele i opis zbiorów: `docs/WYNIKI.md`.
 
@@ -101,3 +101,7 @@ Jeden plik YAML na klasę. Instrukcja i lista klocków: `docs/NOWA-KLASA.md`. Bu
 ## Źródła i cytowania
 
 `ZRODLA-I-CYTOWANIA.md`.
+
+## Licencja
+
+Kod aplikacji: Apache License 2.0 (plik `LICENSE`). Wszystkie zależności i modele są otwarte (`ZRODLA-I-CYTOWANIA.md`).
